@@ -56,7 +56,7 @@ const Home = () => {
                 <div className='max-w-[1300px] w-full mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-10'>
 
                     {/* Left Side - Text */}
-                    <div className='lg:w-1/2 w-full'>
+                    <div className='lg:w-1/2 w-full sm:w-3/4 flex flex-col items-start gap-6'>
                         <h1 className='text-[2rem] sm:text-[2.5rem] md:text-[3rem] font-extrabold leading-tight text-white'>
                             Fast & Fresh Laundry Service
                             <br />
