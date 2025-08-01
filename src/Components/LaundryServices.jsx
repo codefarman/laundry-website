@@ -88,10 +88,7 @@ const LaundryServices = () => {
         <div className="bg-[#F0FAF9] py-10 px-4 sm:px-6 lg:px-8">
             <section className="max-w-[80rem] mx-auto bg-[#004D4D] rounded-2xl p-5 sm:p-8 md:p-12 text-white relative overflow-hidden shadow-lg">
                 
-                {/* Mobile-Only Badge */}
-                <div className="block lg:hidden absolute top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black font-bold px-4 py-1 rounded-full text-xs shadow-md animate-bounce z-20">
-                    🧺 Try our laundry service today!
-                </div>
+                
 
                 <div className="flex flex-col-reverse lg:flex-row items-center lg:items-stretch lg:justify-between gap-10 z-10 relative">
                     
