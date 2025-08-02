@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -26,30 +27,25 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex space-x-10 font-medium text-sm">
-          {['How it works', 'Prices & Services', 'About us', 'For business'].map((item, idx) => (
-            <a
-              key={idx}
-              href="#"
-              className="hover:text-[#60A5FA]"
-            >
-              {item}
-            </a>
-          ))}
+          <Link to="/how-it-works" className="hover:text-[#60A5FA]">How it works</Link>
+          <Link to="/prices" className="hover:text-[#60A5FA]">Prices & Services</Link>
+          <Link to="/about" className="hover:text-[#60A5FA]">About us</Link>
+          <Link to="/business" className="hover:text-[#60A5FA]">For business</Link>
         </nav>
 
         {/* Buttons */}
         <div className="hidden md:flex items-center space-x-6 font-medium text-sm">
-          <a href="#" className="hover:text-[#60A5FA]">
+          <Link to="/login" className="hover:text-[#60A5FA]">
             Log in
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            to="/book"
             className={`px-5 py-2 rounded-md text-black  ${
               isScrolled ? 'bg-[#F4B400] hover:bg-[rgb(280,200,0)]' : 'bg-white text-black '
             }`}
           >
             Book now
-          </a>
+          </Link>
         </div>
 
         {/* Mobile menu toggle */}
@@ -89,12 +85,12 @@ const Navbar = () => {
             isScrolled ? 'bg-white text-gray-900' : 'bg-[#008080] text-white'
           }`}
         >
-          <a href="#" className="hover:text-[#60A5FA] transition">How it works</a>
-          <a href="#" className="hover:text-[#60A5FA] transition">Prices & Services</a>
-          <a href="#" className="hover:text-[#60A5FA] transition">About us</a>
-          <a href="#" className="hover:text-[#60A5FA] transition">For business</a>
-          <a href="#" className="hover:text-[#60A5FA] transition">Log in</a>
-          <a href="#" className="bg-white text-[#008080] hover:bg-gray-100 py-2 px-4 rounded-md transition">Book now</a>
+          <Link to="/how-it-works" className="hover:text-[#60A5FA] transition">How it works</Link>
+          <Link to="/prices" className="hover:text-[#60A5FA] transition">Prices & Services</Link>
+          <Link to="/about" className="hover:text-[#60A5FA] transition">About us</Link>
+          <Link to="/business" className="hover:text-[#60A5FA] transition">For business</Link>
+          <Link to="/login" className="hover:text-[#60A5FA] transition">Log in</Link>
+          <Link to="/book" className="bg-white text-[#008080] hover:bg-gray-100 py-2 px-4 rounded-md transition">Book now</Link>
         </div>
       )}
     </div>
