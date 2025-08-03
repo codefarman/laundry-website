@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 
+
 const HeroSection = () => {
   return (
+    <div className='font-sans'>
     <section className="relative bg-gradient-to-b from-[#F0FDF4] to-white pt-32 pb-20 text-center overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-24">
         <svg viewBox="0 0 500 80" preserveAspectRatio="none" className="w-full h-full">
@@ -38,6 +40,7 @@ const HeroSection = () => {
         </motion.a>
       </div>
     </section>
+    </div>
   );
 };
 
@@ -80,6 +83,13 @@ const StepSection = ({ step, title, description, items, imageSrc, imageAlt, card
 };
 
 const HowItWorks = () => {
+  useEffect(() => {
+  const hash = window.location.hash;
+  if (hash) {
+    const el = document.querySelector(hash);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }
+}, []);
   return (
     <div className="font-sans">
       <Navbar />

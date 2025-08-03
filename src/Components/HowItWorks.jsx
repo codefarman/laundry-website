@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { FiShoppingBag, FiTruck, FiPhoneCall } from 'react-icons/fi';
 import { MdLocalLaundryService } from 'react-icons/md';
 import { BsStars } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
 
 const steps = [
     {
@@ -40,12 +41,11 @@ const HowItWorks = () => {
                     <h1 className='text-[32px] md:text-[36px] font-bold text-[#006666] leading-tight mb-4'>
                         Let Us Handle Your Laundry—<br />Fast, Fresh, and Easy.
                     </h1>
-                    <a
-                        href="#"
-                        className='text-[#0050b3] font-semibold text-base inline-flex items-center gap-2 mt-2 md:mt-1 mb-8 md:mb-12 hover:underline'
-                    >
+                    <Link to='/how-it-works'>
+                    <button className='text-[#0050b3] font-semibold text-base inline-flex items-center gap-2 mt-2 md:mt-1 mb-8 md:mb-12 hover:underline cursor-pointer'>
                         How it works <FiTruck size={18} />
-                    </a>
+                    </button>
+                    </Link>
                 </div>
 
                 {/* Steps Cards */}
