@@ -235,7 +235,7 @@ const scrollToWithOffset = (id) => {
 
 const CategoryButton = ({ label, isActive, onClick, targetId }) => (
   <motion.button
-    className={`px-4 py-2 text-xs font-semibold rounded-full transition-all duration-300 ${
+    className={`px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 mr-1 ${
       isActive
         ? 'bg-[#1E293B] text-white'
         : 'bg-[#F1F5F9] text-[#1E293B] border border-[#008080]/20 hover:bg-[#F4B400]/10'
@@ -253,8 +253,8 @@ const CategoryButton = ({ label, isActive, onClick, targetId }) => (
 );
 
 const PriceItem = ({ title, price, note, onAdd }) => (
-  <div className="flex justify-between items-center py-3 border-b border-[#008080]/10">
-    <span className="text-sm text-[#64748B]">{title}</span>
+  <div className="flex justify-between items-center py-3 border-b border-[#008080]/10 sm:flex-row flex-col items-start">
+    <span className="text-sm text-[#64748B] mb-2 sm:mb-0">{title}</span>
     <div className="flex items-center gap-4">
       <span className="text-base font-medium text-[#1E293B]">{price}</span>
       <motion.button
@@ -267,7 +267,7 @@ const PriceItem = ({ title, price, note, onAdd }) => (
         +
       </motion.button>
     </div>
-    {note && <span className="text-xs text-[#64748B] ml-2">{note}</span>}
+    {note && <span className="text-xs text-[#64748B] mt-1 sm:ml-2">{note}</span>}
   </div>
 );
 
@@ -287,12 +287,12 @@ const PriceOptions = ({ basePrice, options }) => (
   </div>
 );
 
-const Sidebar = ({ cart, onPlaceOrder, onSchedulePickup }) => (
+const Sidebar = ({ cart, onPlaceOrder, onSchedulePickup, isOpen, onClose, onRemoveItem }) => (
   <motion.div
-    initial={{ opacity: 0, x: 20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.6 }}
-    className="w-full max-w-xs p-6 bg-white rounded-lg shadow-md border border-[#008080]/10"
+    initial={{ x: '100%' }}
+    animate={{ x: isOpen ? 0 : '100%' }}
+    transition={{ duration: 0.3 }}
+    className="fixed top-0 right-0 w-80 bg-white p-6 rounded-l-2xl shadow-lg border-l border-[#008080]/10 z-50 h-screen sm:static sm:max-w-sm sm:w-full sm:p-6 sm:bg-white sm:rounded-none sm:shadow-none sm:border-0 sm:h-auto sm:mt-0 sm:ml-auto"
   >
     <h3 className="text-lg font-semibold text-[#1E293B] mb-4">Your Cart</h3>
     {cart.length === 0 ? (
@@ -302,7 +302,18 @@ const Sidebar = ({ cart, onPlaceOrder, onSchedulePickup }) => (
         {cart.map((item, index) => (
           <div key={index} className="flex justify-between items-center py-2 text-sm">
             <span className="text-[#1E293B]">{item.title}</span>
-            <span className="text-[#64748B]">{item.price}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[#64748B]">{item.price}</span>
+              <motion.button
+                className="w-6 h-6 text-[#64748B] hover:text-[#1E293B] transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => onRemoveItem(index)}
+                aria-label={`Remove ${item.title}`}
+              >
+                &times;
+              </motion.button>
+            </div>
           </div>
         ))}
         <p className="text-sm text-[#64748B] mt-2">Total: AED {cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}</p>
@@ -324,25 +335,42 @@ const Sidebar = ({ cart, onPlaceOrder, onSchedulePickup }) => (
     >
       Schedule Pickup
     </motion.button>
+    {isOpen && (
+      <motion.button
+        className="absolute top-2 right-2 text-[#64748B] text-xl sm:hidden"
+        onClick={onClose}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        &times;
+      </motion.button>
+    )}
   </motion.div>
 );
 
 const LaundryServices = () => {
   const [activeTab, setActiveTab] = useState('Wash & Fold');
   const [cart, setCart] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleAddToCart = (title, price) => {
     setCart([...cart, { title, price }]);
   };
 
+  const handleRemoveFromCart = (index) => {
+    setCart(cart.filter((_, i) => i !== index));
+  };
+
   const handlePlaceOrder = () => {
     alert(`Order placed with ${cart.length} items! Total: AED ${cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}`);
     setCart([]);
+    setSidebarOpen(false);
   };
 
   const handleSchedulePickup = () => {
     alert(`Pickup scheduled for ${cart.length} items! Total: AED ${cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}`);
     setCart([]);
+    setSidebarOpen(false);
   };
 
   const tabs = [
@@ -383,7 +411,7 @@ const LaundryServices = () => {
         <button className="text-[#1E293B] font-medium hover:text-[#008080]">Pricing</button>
         <button className="text-[#64748B] hover:text-[#008080]">Info</button>
       </div>
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:mb-6 sm:pb-0">
         {['Shirts', 'Tops', 'Bottoms', 'Suits', 'Dresses', 'Traditional Items', 'Outerwear', 'Accessories & Homewear', 'Accessories', 'Bed Sheets', 'Duvet Covers', 'Pillow Cases & Cushion Covers', 'Bathroom Items'].map((cat) => (
           <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
         ))}
@@ -503,7 +531,7 @@ const LaundryServices = () => {
         <button className="text-[#1E293B] font-medium hover:text-[#008080]">Pricing</button>
         <button className="text-[#64748B] hover:text-[#008080]">Details</button>
       </div>
-      <div className="grid grid-cols-5 gap-2 mb-6">
+      <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-5 sm:gap-2 sm:mb-6 sm:pb-0">
         {['Shirts', 'Tops', 'Bottoms', 'Dresses', 'Traditional Items', 'Outerwear', 'Bed Sheets', 'Duvet Covers', 'Pillow Cases & Cushion Covers', 'Others'].map((cat) => (
           <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
         ))}
@@ -569,7 +597,7 @@ const LaundryServices = () => {
 
   const duvetsContent = (
     <ServiceCard icon="fas fa-bed" title="Duvets & Bulky" description="Care for larger household items.">
-      <div className="grid grid-cols-3 gap-2 mb-6">
+      <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:mb-6 sm:pb-0">
         {['Feather Duvets', 'Synthetic Duvets', 'Blankets & Bedspeads', 'Pillows', 'Mattress Protectors', 'Curtains'].map((cat) => (
           <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
         ))}
@@ -635,13 +663,15 @@ const LaundryServices = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F1F5F9] to-[#E0F2F7] font-sans pt-24">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#1E293B] mb-4">Laundry & Care Services</h1>
           <p className="text-lg text-[#64748B] mb-6">Affordable laundry services with no surprises. Choose the plan that fits your needs!</p>
-          
         </div>
-        <div className="flex flex-col lg:flex-row gap-8">
+
+        {/* Service section */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Left: Tab buttons and content */}
           <div className="flex-1">
             <div className="flex flex-wrap gap-4 mb-8">
               {tabs.map((tab) => (
@@ -654,10 +684,45 @@ const LaundryServices = () => {
                 />
               ))}
             </div>
-            {contentMap[activeTab]}
+            <div className="bg-white shadow rounded-lg p-6">
+              {contentMap[activeTab]}
+            </div>
           </div>
-          <Sidebar cart={cart} onPlaceOrder={handlePlaceOrder} onSchedulePickup={handleSchedulePickup} />
+
+          {/* Right: Cart Sidebar (desktop only) */}
+          <div className="hidden sm:block w-80">
+            <Sidebar
+              cart={cart}
+              onPlaceOrder={handlePlaceOrder}
+              onSchedulePickup={handleSchedulePickup}
+              isOpen={true}
+              onClose={() => {}}
+              onRemoveItem={handleRemoveFromCart}
+            />
+          </div>
         </div>
+      </div>
+
+      {/* Mobile cart button */}
+      <motion.button
+        className="fixed bottom-4 right-4 bg-[#008080] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl hover:bg-[#008080]/90 transition-colors sm:hidden z-50"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        <i className="fas fa-shopping-cart"></i>
+      </motion.button>
+
+      {/* Mobile sidebar */}
+      <div className="sm:hidden">
+        <Sidebar
+          cart={cart}
+          onPlaceOrder={handlePlaceOrder}
+          onSchedulePickup={handleSchedulePickup}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          onRemoveItem={handleRemoveFromCart}
+        />
       </div>
     </div>
   );
