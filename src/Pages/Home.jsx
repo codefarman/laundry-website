@@ -119,6 +119,7 @@ import OrderControl from '../Components/OrderControl'
 import Quates from '../Components/Quates'
 import Footer from '../Components/Footer'
 import { Truck, WashingMachine, CalendarDays } from 'lucide-react'
+import { Link } from "react-router-dom";
 
 const cities = ['Abu Dhabi', 'Dubai']
 
@@ -186,9 +187,11 @@ const Home = () => {
                 placeholder="Enter your area (e.g. MBZ, Mussafah)"
                 className="flex-1 text-[#111827] px-3 py-2 w-full sm:w-auto outline-none"
               />
+              <Link to={'/booking'}>
               <button className="bg-[#F4B400] text-[#111827] px-5 py-2 rounded-md hover:bg-yellow-400 transition w-full sm:w-auto">
                 Schedule
               </button>
+              </Link>
             </div>
 
             {/* Mobile-only icons */}
