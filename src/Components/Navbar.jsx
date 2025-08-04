@@ -237,7 +237,7 @@ const Navbar = () => {
                 onClick={toggleUserDropdown}
                 className="flex items-center space-x-2 focus:outline-none"
               >
-                {user.photoURL ? (
+                {/* {user.photoURL ? (
                   <img
                     src={user.photoURL}
                     alt="User Profile"
@@ -245,41 +245,12 @@ const Navbar = () => {
                   />
                 ) : (
                   getDefaultProfileIcon()
-                )}
+                )} */}
               </button>
-              {userDropdownOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
-                  <div className="px-4 py-2 text-sm font-semibold text-gray-900 border-b border-gray-200">
-                    {user.name || user.email.split('@')[0]}
-                  </div>
-                  <Link
-                    to="/how-it-works"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    How it works
-                  </Link>
-                  <Link
-                    to="/prices"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Prices & Services
-                  </Link>
-                  <Link
-                    to="/about"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    About us
-                  </Link>
-                  <Link
-                    to="/business"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    For business
-                  </Link>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
+
+                 
                   <Link
                     to="/my-orders"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
