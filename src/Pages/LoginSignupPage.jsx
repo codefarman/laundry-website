@@ -17,21 +17,35 @@ const LoginSignupPage = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (activeTab === 'login') {
-      // Placeholder for login logic
-      alert(`Logging in with email: ${email} and password: ${password}`);
-      navigate('/booking'); // Redirect to booking page after login
-    } else {
-      // Placeholder for signup logic
-      if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
-      }
-      alert(`Signing up with name: ${name}, email: ${email}, and password: ${password}`);
-      setActiveTab('login'); // Switch to login after signup
+  e.preventDefault();
+
+  if (activeTab === 'login') {
+    // Example user data — replace with real API/Firebase response
+    const userData = {
+      name: 'John Doe',
+      email: email,
+    };
+
+    // Save user in localStorage
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    // Let Navbar know login happened
+    window.dispatchEvent(new Event('userLogin'));
+
+    alert(`Logged in as: ${email}`);
+    navigate('/booking', { replace: true }); // Redirect after login
+
+  } else {
+    // Signup logic
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
     }
-  };
+
+    alert(`Signing up with name: ${name}, email: ${email}, and password: ${password}`);
+    setActiveTab('login'); // Switch to login after signup
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F1F5F9] to-[#E0F2F7] font-sans flex items-center justify-center py-12 px-4">
