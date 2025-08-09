@@ -11,7 +11,7 @@ import Account from './Pages/Account';
 import MyOrders from './Pages/MyOrders';
 import HelpCenter from './Pages/HelpCenter';
 import RepeatOrder from './Pages/RepeatOrders';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './Pages/Dashboard';
 import Orders from './Pages/Orders';
 import Services from './Pages/Services';
 import Customers from './Pages/Customers';
