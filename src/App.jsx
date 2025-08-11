@@ -17,15 +17,13 @@ import Services from './Pages/Services';
 import Customers from './Pages/Customers';
 import Analytics from './Pages/Analytics';
 import Staff from './Pages/Staff';
-// import { useAuth } from './Hooks/useAuth'; // Adjusted to match your case
+import Branches from './Pages/Branches';
+import Schedule from './Pages/Schedule';
 
 // Create a QueryClient instance
 const queryClient = new QueryClient();
 
 function App() {
-  // const { user } = useAuth();
-  // if (!user) return <div className="p-6">Please log in at /login</div>;
-
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -40,12 +38,15 @@ function App() {
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/repeat-orders" element={<RepeatOrder />} />
           <Route path="/help-center" element={<HelpCenter />} />
-          <Route path="/admin" element={<Dashboard />} />
-          <Route path="/admin/orders" element={<Orders />} />
-          <Route path="/admin/services" element={<Services />} />
-          <Route path="/admin/customers" element={<Customers />} />
-          <Route path="/admin/analytics" element={<Analytics />} />
-          <Route path="/admin/staff" element={<Staff />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/admin" element={<Dashboard />}>
+            <Route path="orders" element={<Orders />} />
+            <Route path="services" element={<Services />} />
+            <Route path="customers" element={<Customers />} />
+            <Route path="branches" element={<Branches />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="staff" element={<Staff />} />
+          </Route>
           <Route path="*" element={<div>Page Not Found</div>} /> {/* Catch-all route */}
         </Routes>
       </Router>

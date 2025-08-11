@@ -13,11 +13,12 @@ const BookingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
+  const branch = location.state?.branch || { name: 'Main Branch' }; // Default to Main Branch if not found
 
   // Function to remove item from cart
   const handleRemoveItem = (index) => {
     const updatedCart = cart.filter((_, i) => i !== index);
-    navigate('/booking', { state: { cart: updatedCart } });
+    navigate('/booking', { state: { cart: updatedCart, branch } });
   };
 
   // Sample Dubai address suggestions (replace with API in production)
@@ -50,6 +51,7 @@ const BookingPage = () => {
       contact,
       paymentMethod,
       total: cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2),
+      branch: branch.name, // Include branch name in the order data
     };
 
     try {
@@ -213,6 +215,7 @@ const BookingPage = () => {
                     </div>
                   ))}
                   <p className="text-sm text-[#64748B] mt-4">Total: AED {cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}</p>
+                  <p className="text-sm text-[#64748B] mt-2">Assigned Branch: {branch.name}</p> {/* Display assigned branch */}
                 </div>
               )}
             </motion.div>
@@ -391,6 +394,7 @@ const BookingPage = () => {
                   </label>
                 </div>
                 <p className="text-sm text-[#64748B] mt-4">Total: AED {cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}</p>
+                <p className="text-sm text-[#64748B] mt-2">Assigned Branch: {branch.name}</p> {/* Display assigned branch */}
                 <div className="flex items-center justify-between mt-4">
                   <span className="text-xs text-[#64748B]">Secured by SSL & 256-bit Encryption</span>
                   <div className="flex space-x-2">
@@ -430,6 +434,7 @@ const BookingPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 disabled={cart.length === 0}
+                onClick={handleSubmit}
               >
                 Confirm Booking
               </motion.button>

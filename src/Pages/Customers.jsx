@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../Utils/api';
 import Sidebar from '../Components/Sidebar';
 
 const Customers = () => {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
 
   const { data: customers, isLoading } = useQuery({
@@ -63,7 +62,7 @@ const Customers = () => {
                         </span>
                       </td>
                       <td className="p-2">
-                        <Link to={`/admin/customers/${customer._id}`} className="text-blue-500 hover:underline mr-2">
+                        <Link to={`/customers/${customer._id}`} className="text-blue-500 hover:underline mr-2">
                           View
                         </Link>
                         <button

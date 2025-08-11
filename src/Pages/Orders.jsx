@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../Utils/api';
 import Sidebar from '../Components/Sidebar';
-import OrderTable from '../Components/OrderTable';
 
 const Orders = () => {
-  const queryClient = useQueryClient();
-  const [filters, setFilters] = useState({ status: '', name: '', orderId: '' });
-  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [filters, setFilters] = useState({ status: '', name: '', orderId: '', branchId: '' });
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders', filters],
     queryFn: () => api.get('/orders', { params: filters }).then(res => res.data),
+  });
+
+  const { data: branches } = useQuery({
+    queryKey: ['branches'],
+    queryFn: () => api.get('/branches').then(res => res.data),
   });
 
   const updateStatusMutation = useMutation({
@@ -21,14 +23,8 @@ const Orders = () => {
   });
 
   const handleBulkUpdate = (status) => {
+    const selectedOrders = orders.filter(order => order.selected).map(order => order._id);
     updateStatusMutation.mutate({ orderIds: selectedOrders, status });
-    setSelectedOrders([]);
-  };
-
-  const toggleSelect = (orderId) => {
-    setSelectedOrders(prev =>
-      prev.includes(orderId) ? prev.filter(id => id !== orderId) : [...prev, orderId]
-    );
   };
 
   return (
@@ -41,7 +37,6 @@ const Orders = () => {
             <button
               onClick={() => handleBulkUpdate('Completed')}
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-              disabled={selectedOrders.length === 0}
             >
               Mark Selected Completed
             </button>
@@ -74,13 +69,71 @@ const Orders = () => {
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
+            <select
+              value={filters.branchId}
+              onChange={(e) => setFilters({ ...filters, branchId: e.target.value })}
+              className="border p-2 rounded"
+            >
+              <option value="">All Branches</option>
+              {branches?.map(branch => (
+                <option key={branch._id} value={branch._id}>{branch.name}</option>
+              ))}
+            </select>
           </div>
-          <OrderTable
-            orders={orders}
-            selectedOrders={selectedOrders}
-            toggleSelect={toggleSelect}
-            isLoading={isLoading}
-          />
+          {isLoading ? (
+            <p>Loading orders...</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full bg-white rounded shadow">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="p-2 text-left">
+                      <input type="checkbox" />
+                    </th>
+                    <th className="p-2 text-left">Order ID</th>
+                    <th className="p-2 text-left">Customer</th>
+                    <th className="p-2 text-left">Status</th>
+                    <th className="p-2 text-left">Total</th>
+                    <th className="p-2 text-left">Delivery Date</th>
+                    <th className="p-2 text-left">Branch</th>
+                    <th className="p-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders?.map(order => (
+                    <tr key={order._id} className="border-t">
+                      <td className="p-2">
+                        <input
+                          type="checkbox"
+                          checked={order.selected}
+                          onChange={() => {/* Toggle selection */}}
+                        />
+                      </td>
+                      <td className="p-2">{order.orderId}</td>
+                      <td className="p-2">{order.customerId.name}</td>
+                      <td className="p-2">
+                        <span className={`px-2 py-1 rounded text-white ${
+                          order.status === 'Pending' ? 'bg-yellow-500' :
+                          order.status === 'In Progress' ? 'bg-blue-500' :
+                          order.status === 'Completed' ? 'bg-green-500' : 'bg-red-500'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="p-2">${order.totalAmount}</td>
+                      <td className="p-2">{new Date(order.deliveryDate).toLocaleDateString()}</td>
+                      <td className="p-2">{order.branchId.name}</td>
+                      <td className="p-2">
+                        <Link to={`/orders/${order._id}`} className="text-blue-500 hover:underline">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

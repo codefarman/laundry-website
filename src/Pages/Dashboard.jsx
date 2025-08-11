@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { api } from '../Utils/api';
@@ -41,73 +41,82 @@ const Dashboard = () => {
             </button>
           </div>
         </header>
-        {statsLoading ? (
-          <p>Loading stats...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-            <StatsCard title="Total Orders Today" value={stats?.todayOrders || 0} />
-            <StatsCard title="Total Revenue" value={`$${stats?.revenue || 0}`} />
-            <StatsCard title="Active Customers" value={stats?.customers || 0} />
-            <StatsCard title="Pending Orders" value={stats?.pending || 0} />
-          </div>
-        )}
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold">Order Trends</h2>
-          <div className="bg-white p-4 rounded shadow">
-            <LineChart width={600} height={300} data={chartData} className="w-full">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="orders" stroke="#8884d8" />
-              <Line type="monotone" dataKey="revenue" stroke="#82ca9d" />
-            </LineChart>
-          </div>
-        </div>
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold">Recent Orders</h2>
-          {ordersLoading ? (
-            <p>Loading orders...</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white rounded shadow">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="p-2 text-left">Order ID</th>
-                    <th className="p-2 text-left">Customer</th>
-                    <th className="p-2 text-left">Status</th>
-                    <th className="p-2 text-left">Total</th>
-                    <th className="p-2 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders?.map(order => (
-                    <tr key={order._id} className="border-t">
-                      <td className="p-2">{order.orderId}</td>
-                      <td className="p-2">{order.customerId.name}</td>
-                      <td className="p-2">
-                        <span className={`px-2 py-1 rounded text-white ${
-                          order.status === 'Pending' ? 'bg-yellow-500' :
-                          order.status === 'In Progress' ? 'bg-blue-500' :
-                          order.status === 'Completed' ? 'bg-green-500' : 'bg-red-500'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="p-2">${order.totalAmount}</td>
-                      <td className="p-2">
-                        <Link to={`/admin/orders/${order._id}`} className="text-blue-500 hover:underline">
-                          View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Default Dashboard Content */}
+        {!window.location.pathname.includes('/admin/') || window.location.pathname === '/admin' ? (
+          <>
+            {statsLoading ? (
+              <p>Loading stats...</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+                <StatsCard title="Total Orders Today" value={stats?.todayOrders || 0} />
+                <StatsCard title="Total Revenue" value={`$${stats?.revenue || 0}`} />
+                <StatsCard title="Active Customers" value={stats?.customers || 0} />
+                <StatsCard title="Pending Orders" value={stats?.pending || 0} />
+              </div>
+            )}
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold">Order Trends</h2>
+              <div className="bg-white p-4 rounded shadow">
+                <LineChart width={600} height={300} data={chartData} className="w-full">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="orders" stroke="#8884d8" />
+                  <Line type="monotone" dataKey="revenue" stroke="#82ca9d" />
+                </LineChart>
+              </div>
             </div>
-          )}
-        </div>
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold">Recent Orders</h2>
+              {ordersLoading ? (
+                <p>Loading orders...</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full bg-white rounded shadow">
+                    <thead>
+                      <tr className="bg-gray-200">
+                        <th className="p-2 text-left">Order ID</th>
+                        <th className="p-2 text-left">Customer</th>
+                        <th className="p-2 text-left">Status</th>
+                        <th className="p-2 text-left">Total</th>
+                        <th className="p-2 text-left">Branch</th>
+                        <th className="p-2 text-left">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders?.map(order => (
+                        <tr key={order._id} className="border-t">
+                          <td className="p-2">{order.orderId}</td>
+                          <td className="p-2">{order.customerId.name}</td>
+                          <td className="p-2">
+                            <span className={`px-2 py-1 rounded text-white ${
+                              order.status === 'Pending' ? 'bg-yellow-500' :
+                              order.status === 'In Progress' ? 'bg-blue-500' :
+                              order.status === 'Completed' ? 'bg-green-500' : 'bg-red-500'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="p-2">${order.totalAmount}</td>
+                          <td className="p-2">{order.branchId.name}</td>
+                          <td className="p-2">
+                            <Link to={`/orders/${order._id}`} className="text-blue-500 hover:underline">
+                              View
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <Outlet /> // Render nested routes (Orders, Services, etc.)
+        )}
       </div>
     </div>
   );

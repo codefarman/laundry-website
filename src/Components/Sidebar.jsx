@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HomeIcon, ShoppingCartIcon, TagIcon, UserIcon, ChartBarIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, ShoppingCartIcon, TagIcon, UserIcon, ChartBarIcon, UsersIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 const Sidebar = () => (
   <div className="w-64 bg-gray-800 text-white h-screen fixed top-0 left-0">
@@ -25,6 +25,9 @@ const Sidebar = () => (
       </Link>
       <Link to="/admin/staff" className="flex items-center py-2 px-4 hover:bg-gray-700">
         <UsersIcon className="w-5 h-5 mr-2" /> Staff
+      </Link>
+      <Link to="/admin/branches" className="flex items-center py-2 px-4 hover:bg-gray-700">
+        <MapPinIcon className="w-5 h-5 mr-2" /> Branches
       </Link>
     </nav>
   </div>
