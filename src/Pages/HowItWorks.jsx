@@ -53,19 +53,19 @@ const HowItWorks = () => {
   return (
     <div className="font-sans">
       {/* Sticky Navbar */}
-      <motion.nav
+      {/* <motion.nav
         className="fixed top-0 w-full bg-white shadow-md z-50 transition-all duration-300"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-      >
+      > */}
+      {/* </motion.nav> */}
         <Navbar />
-      </motion.nav>
 
       <section className="relative bg-gradient-to-b from-[#F0FDF4] to-white pt-32 pb-20 text-center overflow-hidden mt-16">
         <div className="absolute top-0 left-0 w-full h-24">
-          <svg viewBox="0 0 500 80" preserveAspectRatio="none" className="w-full h-full">
+          {/* <svg viewBox="0 0 500 80" preserveAspectRatio="none" className="w-full h-full">
             <path d="M0,80 C150,0 350,160 500,80 L500,0 L0,0 Z" className="fill-[#008080]" />
-          </svg>
+          </svg> */}
         </div>
         <div className="max-w-4xl mx-auto px-4">
           <motion.h1
