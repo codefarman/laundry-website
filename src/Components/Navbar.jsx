@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -8,6 +8,9 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const location = useLocation();
+
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,7 +72,13 @@ const Navbar = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out ${isScrolled ? 'bg-white text-gray-900 shadow-md py-4' : 'bg-[#008080] text-white py-10'
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out 
+        ${
+          isScrolled
+            ? 'bg-white text-gray-900 shadow-md py-4'
+            : `${
+                isHome ? ' md:bg-[#017C80]' : 'bg-[#017C80]'
+              } text-white py-10`
         }`}
     >
       <header className="flex items-center justify-between px-6 sm:px-10 md:px-16 max-w-[1440px] mx-auto">
@@ -269,8 +278,8 @@ const Navbar = () => {
 
       {/* Mobile Menu for non-logged in */}
       {menuOpen && !user && (
-        <div className={`md:hidden flex flex-col space-y-4 px-6 pb-6 ${isScrolled ? 'bg-white text-gray-900' : 'bg-[#008080] text-white'}`}>
-          <Link to="/login" className={`px-5 py-2 rounded-md text-black ${isScrolled ? 'bg-[#F4B400]' : 'bg-white text-black'}`}>Log in</Link>
+        <div className={`md:hidden flex flex-col space-y-4 px-6 pb-6 ${isScrolled ? 'bg-white text-gray-900' : 'bg-gradient-to-b from-black/70 via-black/50 to-black/70 text-white'}`}>
+          <Link to="/login" className={`px-5 py-2 rounded-md mt-2 text-black ${isScrolled ? 'bg-[#F4B400]' : 'bg-gradient-to-b from-black/70 via-black/50 to-black/70 text-white'}`}>Log in</Link>
           <Link to="/how-it-works" className="hover:text-[#60A5FA]">How it works</Link>
           <Link to="/prices" className="hover:text-[#60A5FA]">Prices & Services</Link>
           <Link to="/about" className="hover:text-[#60A5FA]">About us</Link>

@@ -25,10 +25,11 @@ const ServiceCard = ({ icon, title, description, children }) => (
 
 const TabButton = ({ icon, label, isActive, onClick }) => (
   <motion.button
-    className={`flex items-center gap-3 px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 ${isActive
-      ? 'bg-gradient-to-r from-[#008080] to-[#F4B400] text-white shadow-md'
-      : 'bg-white text-[#1E293B] border border-[#008080]/20 hover:bg-[#F1F5F9]'
-      }`}
+    className={`flex items-center gap-3 px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 ${
+      isActive
+        ? 'bg-gradient-to-r from-[#008080] to-[#F4B400] text-white shadow-md'
+        : 'bg-white text-[#1E293B] border border-[#008080]/20 hover:bg-[#F1F5F9]'
+    }`}
     onClick={onClick}
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
@@ -47,10 +48,11 @@ const scrollToWithOffset = (id) => {
 
 const CategoryButton = ({ label, isActive, onClick, targetId }) => (
   <motion.button
-    className={`px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 mr-1 ${isActive
-      ? 'bg-[#1E293B] text-white'
-      : 'bg-[#F1F5F9] text-[#1E293B] border border-[#008080]/20 hover:bg-[#F4B400]/10'
-      }`}
+    className={`px-2 py-1 text-xs font-semibold rounded-full transition-all duration-300 mr-1 ${
+      isActive
+        ? 'bg-[#1E293B] text-white'
+        : 'bg-[#F1F5F9] text-[#1E293B] border border-[#008080]/20 hover:bg-[#F4B400]/10'
+    }`}
     onClick={() => {
       if (targetId) {
         scrollToWithOffset(targetId);
@@ -64,12 +66,17 @@ const CategoryButton = ({ label, isActive, onClick, targetId }) => (
 );
 
 const PriceItem = ({ title, price, note, onAdd }) => (
-  <div className="flex justify-between items-center py-3 border-b border-[#008080]/10 sm:flex-row flex-col items-start">
-    <span className="text-sm text-[#64748B] mb-2 sm:mb-0">{title}</span>
-    <div className="flex items-center gap-4">
-      <span className="text-base font-medium text-[#1E293B]">{price}</span>
+  <div className="flex justify-between items-start py-3 border-b border-[#008080]/10 sm:flex-row flex-col">
+    <span className="text-sm text-[#64748B] mb-2 sm:mb-0 sm:flex-1">{title}</span>
+    <div className="flex flex-col items-end sm:items-center sm:flex-row sm:gap-4 sm:w-auto w-full">
+      <div className="text-right">
+        <span className="text-base font-medium text-[#1E293B]">{price}</span>
+        {note && (
+          <div className="text-[10px] text-[#64748B] mt-1">{note}</div>
+        )}
+      </div>
       <motion.button
-        className="w-8 h-8 rounded-full bg-[#F4B400]/10 text-[#1E293B] flex items-center justify-center hover:bg-[#F4B400]/20 transition-colors"
+        className="w-8 h-8 rounded-full bg-[#F4B400]/10 text-[#1E293B] flex items-center justify-center hover:bg-[#F4B400]/20 transition-colors mt-2 sm:mt-0"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={onAdd}
@@ -78,23 +85,6 @@ const PriceItem = ({ title, price, note, onAdd }) => (
         +
       </motion.button>
     </div>
-    {note && <span className="text-xs text-[#64748B] mt-1 sm:ml-2">{note}</span>}
-  </div>
-);
-
-const PriceOptions = ({ basePrice, options }) => (
-  <div className="flex flex-wrap gap-3 p-3 bg-[#F1F5F9] rounded-lg mt-2">
-    <div className="flex items-center gap-2 text-[#64748B] text-sm">
-      <i className="fas fa-star text-[#F4B400]"></i>
-      <span>Save up to 30%</span>
-    </div>
-    {options.map((opt, index) => (
-      <div key={index} className="text-center text-sm">
-        <span className="block text-[#64748B]">{opt.quantity}</span>
-        <span className="block font-semibold text-[#1E293B]">{opt.price}</span>
-        <span className="block text-[#64748B] text-xs">/ {opt.unit}</span>
-      </div>
-    ))}
   </div>
 );
 
@@ -102,14 +92,11 @@ const Sidebar = ({ cart, onSchedulePickup, isOpen, onClose, onRemoveItem }) => {
   const navigate = useNavigate();
 
   const handleSchedulePickup = () => {
-    // Retrieve nearest branch from localStorage
     const branch = JSON.parse(localStorage.getItem('selectedBranch'));
     if (branch) {
-      // Pass cart and branch to booking page
       navigate('/booking', { state: { cart, branch } });
     } else {
       alert('Unable to determine nearest branch. Please try again.');
-      // Fallback to Main Branch if needed (optional)
       navigate('/booking', { state: { cart, branch: { name: 'Main Branch' } } });
     }
   };
@@ -143,7 +130,18 @@ const Sidebar = ({ cart, onSchedulePickup, isOpen, onClose, onRemoveItem }) => {
               </div>
             </div>
           ))}
-          <p className="text-sm text-[#64748B] mt-2">Total: AED {cart.reduce((sum, item) => sum + parseFloat(item.price.replace('AED ', '')), 0).toFixed(2)}</p>
+          <p className="text-sm text-[#64748B] mt-2">
+            Total: AED{' '}
+            {cart
+              .reduce((sum, item) => {
+                const priceStr = item.calculatedPrice || item.price;
+                const price = priceStr.includes('-')
+                  ? parseFloat(priceStr.replace('AED ', '').split('-')[0])
+                  : parseFloat(priceStr.replace('AED ', ''));
+                return sum + (isNaN(price) ? 0 : price);
+              }, 0)
+              .toFixed(2)}
+          </p>
         </div>
       )}
       <motion.button
@@ -182,8 +180,16 @@ const LaundryServices = () => {
     }
   }, [serviceFromBooking]);
 
-  const handleAddToCart = (title, price) => {
-    setCart([...cart, { title, price }]);
+  const handleAddToCart = (title, price, quantity = 1) => {
+    let calculatedPrice = price;
+    if (title.includes('30kg Bulk')) {
+      calculatedPrice = `AED ${30 * 7.5}`;
+    } else if (title.includes('60kg Bulk')) {
+      calculatedPrice = `AED ${60 * 7.25}`;
+    } else if (title.includes('120kg Bulk')) {
+      calculatedPrice = `AED ${120 * 7}`;
+    }
+    setCart([...cart, { title, price, calculatedPrice }]);
   };
 
   const handleRemoveFromCart = (index) => {
@@ -195,28 +201,52 @@ const LaundryServices = () => {
     { label: 'Clean & Iron', icon: 'fas fa-ironing' },
     { label: 'Ironing', icon: 'fas fa-steam-iron' },
     { label: 'Duvets & Bulky', icon: 'fas fa-bed' },
-    { label: 'Sneaker Care', icon: 'fas fa-sneaker' },
+    { label: 'Dry Cleaning', icon: 'fas fa-tint' },
   ];
 
   const washAndFoldContent = (
     <ServiceCard icon="fas fa-shirt" title="Wash & Fold" description="Fresh cleaning for your daily laundry needs.">
       <nav className="flex gap-6 mb-6 text-sm">
-        <a className="text-[#1E293B] font-medium hover:text-[#008080]" href="#">Pricing</a>
-        <a className="text-[#64748B] hover:text-[#008080]" href="#">Details</a>
+        <a className="text-[#1E293B] font-medium hover:text-[#008080]" href="#">
+          Pricing
+        </a>
+        <a className="text-[#64748B] hover:text-[#008080]" href="#">
+          Details
+        </a>
       </nav>
       <div>
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Wash Plans</h3>
-        <PriceItem title="Mixed Load (up to 6kg)" price="AED 65" onAdd={() => handleAddToCart("Mixed Load (6kg)", "AED 65")} />
-        <PriceItem title="Separate Load (up to 12kg)" price="AED 130" onAdd={() => handleAddToCart("Separate Load (12kg)", "AED 130")} />
-        <PriceItem title="Each Additional 1kg" price="AED 11.95" onAdd={() => handleAddToCart("Additional 1kg", "AED 11.95")} />
-        <div className="grid grid-cols-4 gap-4 mt-6">
-          <div className="flex items-center gap-2 bg-[#F4B400]/10 p-2 rounded-lg">
-            <i className="fas fa-percent text-[#F4B400]"></i>
-            <span className="text-sm text-[#1E293B]">Save 30%</span>
-          </div>
-          <PriceItem title="30kg Bulk" price="AED 10.16/kg" originalPrice="AED 41.95" onAdd={() => handleAddToCart("30kg Bulk", "AED 10.16/kg")} />
-          <PriceItem title="60kg Bulk" price="AED 9.65/kg" originalPrice="AED 41.95" onAdd={() => handleAddToCart("60kg Bulk", "AED 9.65/kg")} />
-          <PriceItem title="120kg Bulk" price="AED 9.07/kg" originalPrice="AED 41.95" onAdd={() => handleAddToCart("120kg Bulk", "AED 9.07/kg")} />
+        <PriceItem
+          title="Mixed Load (up to 6kg)"
+          price="AED 48"
+          onAdd={() => handleAddToCart('Mixed Load (6kg)', 'AED 48')}
+        />
+        <PriceItem
+          title="Separate Load (up to 12kg)"
+          price="AED 96"
+          onAdd={() => handleAddToCart('Separate Load (12kg)', 'AED 96')}
+        />
+        <PriceItem
+          title="Each Additional 1kg"
+          price="AED 8"
+          onAdd={() => handleAddToCart('Additional 1kg', 'AED 8')}
+        />
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <PriceItem
+            title="30kg Bulk"
+            price="AED 7.5/kg (AED 225)"
+            onAdd={() => handleAddToCart('30kg Bulk', 'AED 7.5/kg')}
+          />
+          <PriceItem
+            title="60kg Bulk"
+            price="AED 7.25/kg (AED 435)"
+            onAdd={() => handleAddToCart('60kg Bulk', 'AED 7.25/kg')}
+          />
+          <PriceItem
+            title="120kg Bulk"
+            price="AED 7/kg (AED 840)"
+            onAdd={() => handleAddToCart('120kg Bulk', 'AED 7/kg')}
+          />
         </div>
       </div>
     </ServiceCard>
@@ -229,115 +259,153 @@ const LaundryServices = () => {
         <button className="text-[#64748B] hover:text-[#008080]">Info</button>
       </div>
       <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:mb-6 sm:pb-0">
-        {['Shirts', 'Tops', 'Bottoms', 'Suits', 'Dresses', 'Traditional Items', 'Outerwear', 'Accessories & Homewear', 'Accessories', 'Bed Sheets', 'Duvet Covers', 'Pillow Cases & Cushion Covers', 'Bathroom Items'].map((cat) => (
-          <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
+        {[
+          'Shirts',
+          'Tops',
+          'Bottoms',
+          'Suits',
+          'Dresses',
+          'Traditional Items',
+          'Outerwear',
+          'Accessories & Homewear',
+          'Accessories',
+          'Bed Sheets',
+          'Duvet Covers',
+          'Pillow Cases & Cushion Covers',
+          'Bathroom Items',
+          'Carpets & Curtains',
+        ].map((cat) => (
+          <CategoryButton
+            key={cat}
+            label={cat}
+            targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()}
+            isActive={false}
+          />
         ))}
       </div>
       <div id="shirts">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Shirts</h3>
-        <PriceItem title="Shirt on Hanger" price="AED 17" onAdd={() => handleAddToCart("Shirt on Hanger", "AED 17")} />
-        <PriceOptions
-          basePrice="AED 17"
-          options={[
-            { quantity: '20 Shirts on hangers', price: 'AED 14', unit: 'shirt' },
-            { quantity: '30 Shirts on hangers', price: 'AED 13', unit: 'shirt' },
-            { quantity: '100 Shirts on hangers', price: 'AED 11', unit: 'shirt' },
-          ]}
+        <PriceItem title="Shirt" price="AED 5" onAdd={() => handleAddToCart('Shirt', 'AED 5')} />
+        <PriceItem title="T Shirt" price="AED 5" onAdd={() => handleAddToCart('T Shirt', 'AED 5')} />
+        <PriceItem
+          title="Under T Shirt"
+          price="AED 3"
+          onAdd={() => handleAddToCart('Under T Shirt', 'AED 3')}
         />
-        <PriceItem title="Shirt Folded" price="AED 19" onAdd={() => handleAddToCart("Shirt Folded", "AED 19")} />
       </div>
       <div id="tops" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Tops</h3>
-        <PriceItem title="T-Shirt on Hanger" price="AED 16" onAdd={() => handleAddToCart("T-Shirt on Hanger", "AED 16")} />
-        <PriceOptions
-          basePrice="AED 16"
-          options={[
-            { quantity: '20 T-Shirts on hangers', price: 'AED 13', unit: 't-shirt' },
-            { quantity: '30 T-Shirts on hangers', price: 'AED 12', unit: 't-shirt' },
-            { quantity: '100 T-Shirts on hangers', price: 'AED 10', unit: 't-shirt' },
-          ]}
-        />
-        <PriceItem title="T-Shirt Folded" price="AED 18" onAdd={() => handleAddToCart("T-Shirt Folded", "AED 18")} />
-        <PriceItem title="Polo Shirt on Hanger" price="AED 17" onAdd={() => handleAddToCart("Polo Shirt on Hanger", "AED 17")} />
-        <PriceItem title="Polo Shirt Folded" price="AED 19" onAdd={() => handleAddToCart("Polo Shirt Folded", "AED 19")} />
-        <PriceItem title="Pullover" price="AED 25" onAdd={() => handleAddToCart("Pullover", "AED 25")} />
-        <PriceItem title="Cardigan" price="AED 25" onAdd={() => handleAddToCart("Cardigan", "AED 25")} />
-        <PriceItem title="Top / Blouse" price="AED 17" onAdd={() => handleAddToCart("Top / Blouse", "AED 17")} />
-        <PriceItem title="Top / Blouse - Silk" price="AED 20" onAdd={() => handleAddToCart("Top / Blouse - Silk", "AED 20")} />
+        <PriceItem title="Top" price="AED 6" onAdd={() => handleAddToCart('Top', 'AED 6')} />
+        <PriceItem title="Blouse" price="AED 5" onAdd={() => handleAddToCart('Blouse', 'AED 5')} />
+        <PriceItem title="Sweater" price="AED 10" onAdd={() => handleAddToCart('Sweater', 'AED 10')} />
       </div>
       <div id="bottoms" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bottoms</h3>
-        <PriceItem title="Shorts" price="AED 16" onAdd={() => handleAddToCart("Shorts", "AED 16")} />
-        <PriceItem title="Skirt" price="AED 17" onAdd={() => handleAddToCart("Skirt", "AED 17")} />
-        <PriceItem title="Skirt - Delicate" price="AED 18" note="* Silk or delicate material" onAdd={() => handleAddToCart("Skirt - Delicate", "AED 18")} />
-        <PriceItem title="Trousers / Jeans" price="AED 18" onAdd={() => handleAddToCart("Trousers / Jeans", "AED 18")} />
-        <PriceOptions
-          basePrice="AED 18"
-          options={[
-            { quantity: '5 Trousers', price: 'AED 16.80', unit: 'trousers' },
-            { quantity: '10 Trousers', price: 'AED 15.30', unit: 'trousers' },
-            { quantity: '20 Trousers', price: 'AED 13.50', unit: 'trousers' },
-          ]}
-        />
+        <PriceItem title="Trouser" price="AED 5" onAdd={() => handleAddToCart('Trouser', 'AED 5')} />
+        <PriceItem title="Pajama" price="AED 5" onAdd={() => handleAddToCart('Pajama', 'AED 5')} />
+        <PriceItem title="Half Pant" price="AED 5" onAdd={() => handleAddToCart('Half Pant', 'AED 5')} />
+        <PriceItem title="Skirt" price="AED 6" onAdd={() => handleAddToCart('Skirt', 'AED 6')} />
+        <PriceItem title="Lungi" price="AED 4" onAdd={() => handleAddToCart('Lungi', 'AED 4')} />
       </div>
       <div id="suits" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Suits</h3>
-        <PriceItem title="3-Piece Suit" price="AED 52" onAdd={() => handleAddToCart("3-Piece Suit", "AED 52")} />
-        <PriceItem title="2-Piece Suit" price="AED 48" onAdd={() => handleAddToCart("2-Piece Suit", "AED 48")} />
+        <PriceItem title="Suit" price="AED 20" onAdd={() => handleAddToCart('Suit', 'AED 20')} />
+        <PriceItem title="Army Suit" price="AED 15" onAdd={() => handleAddToCart('Army Suit', 'AED 15')} />
+        <PriceItem
+          title="Pakistani Men Suit"
+          price="AED 10"
+          onAdd={() => handleAddToCart('Pakistani Men Suit', 'AED 10')}
+        />
+        <PriceItem
+          title="Pakistani Ladies Suit"
+          price="AED 15"
+          onAdd={() => handleAddToCart('Pakistani Ladies Suit', 'AED 15')}
+        />
+        <PriceItem title="Coverall" price="AED 10" onAdd={() => handleAddToCart('Coverall', 'AED 10')} />
       </div>
       <div id="dresses" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Dresses</h3>
-        <PriceItem title="Dress" price="AED 23" onAdd={() => handleAddToCart("Dress", "AED 23")} />
-        <PriceItem title="Dress - Delicate" price="AED 49" onAdd={() => handleAddToCart("Dress - Delicate", "AED 49")} />
-        <PriceItem title="Dress - Evening" price="AED 55" onAdd={() => handleAddToCart("Dress - Evening", "AED 55")} />
-        <PriceItem title="Jumpsuit" price="AED 26" onAdd={() => handleAddToCart("Jumpsuit", "AED 26")} />
+        <PriceItem title="Baby Dress" price="AED 10" onAdd={() => handleAddToCart('Baby Dress', 'AED 10')} />
+        <PriceItem title="Ladies Dress" price="AED 15" onAdd={() => handleAddToCart('Ladies Dress', 'AED 15')} />
+        <PriceItem
+          title="Ladies Dress Big"
+          price="AED 20"
+          onAdd={() => handleAddToCart('Ladies Dress Big', 'AED 20')}
+        />
+        <PriceItem title="Sari" price="AED 10" onAdd={() => handleAddToCart('Sari', 'AED 10')} />
       </div>
       <div id="traditional-items" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Traditional Items</h3>
-        <PriceItem title="Abaya" price="AED 15" onAdd={() => handleAddToCart("Abaya", "AED 15")} />
-        <PriceItem title="Dupatta - Shila" price="AED 15" onAdd={() => handleAddToCart("Dupatta - Shila", "AED 15")} />
-        <PriceItem title="Ghutra" price="AED 10" onAdd={() => handleAddToCart("Ghutra", "AED 10")} />
-        <PriceItem title="Kandura / Dishdasha" price="AED 15" onAdd={() => handleAddToCart("Kandura / Dishdasha", "AED 15")} />
-        <PriceItem title="Lungi" price="AED 18" onAdd={() => handleAddToCart("Lungi", "AED 18")} />
-        <PriceItem title="Serwe" price="AED 80" onAdd={() => handleAddToCart("Serwe", "AED 80")} />
-        <PriceItem title="Shalwar/Kurta" price="AED 28" onAdd={() => handleAddToCart("Shalwar/Kurta", "AED 28")} />
+        <PriceItem
+          title="Summer Kandoora"
+          price="AED 10"
+          onAdd={() => handleAddToCart('Summer Kandoora', 'AED 10')}
+        />
+        <PriceItem title="Hot Kandoora" price="AED 15" onAdd={() => handleAddToCart('Hot Kandoora', 'AED 15')} />
+        <PriceItem title="Tarbooj" price="AED 2" onAdd={() => handleAddToCart('Tarbooj', 'AED 2')} />
+        <PriceItem title="Ghutra" price="AED 5" onAdd={() => handleAddToCart('Ghutra', 'AED 5')} />
+        <PriceItem title="Hot Ghutra" price="AED 6" onAdd={() => handleAddToCart('Hot Ghutra', 'AED 6')} />
+        <PriceItem title="Shimagh" price="AED 5" onAdd={() => handleAddToCart('Shimagh', 'AED 5')} />
+        <PriceItem title="Ghafia" price="AED 2" onAdd={() => handleAddToCart('Ghafia', 'AED 2')} />
+        <PriceItem title="Abaya" price="AED 10" onAdd={() => handleAddToCart('Abaya', 'AED 10')} />
+        <PriceItem title="Shella" price="AED 5" onAdd={() => handleAddToCart('Shella', 'AED 5')} />
       </div>
       <div id="outerwear" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Outerwear</h3>
-        <PriceItem title="Jacket / Blazer" price="AED 47" onAdd={() => handleAddToCart("Jacket / Blazer", "AED 47")} />
-        <PriceItem title="Overcoat / Raincoat" price="AED 75" onAdd={() => handleAddToCart("Overcoat / Raincoat", "AED 75")} />
-        <PriceItem title="Waistcoat" price="AED 18" onAdd={() => handleAddToCart("Waistcoat", "AED 18")} />
+        <PriceItem title="Jacket" price="AED 10" onAdd={() => handleAddToCart('Jacket', 'AED 10')} />
       </div>
       <div id="accessories-homewear" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Accessories & Homewear</h3>
-        <PriceItem title="Pair of Socks" price="AED 4" onAdd={() => handleAddToCart("Pair of Socks", "AED 4")} />
-        <PriceItem title="Scarf" price="AED 15" onAdd={() => handleAddToCart("Scarf", "AED 15")} />
-        <PriceItem title="Underwear" price="AED 4" onAdd={() => handleAddToCart("Underwear", "AED 4")} />
+        <PriceItem title="Under Wear" price="AED 3" onAdd={() => handleAddToCart('Under Wear', 'AED 3')} />
+        <PriceItem title="Socks" price="AED 3" onAdd={() => handleAddToCart('Socks', 'AED 3')} />
       </div>
       <div id="accessories" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Accessories</h3>
-        <PriceItem title="Tie" price="AED 15" onAdd={() => handleAddToCart("Tie", "AED 15")} />
+        <PriceItem title="Tie" price="AED 6" onAdd={() => handleAddToCart('Tie', 'AED 6')} />
+        <PriceItem title="Cap" price="AED 5" onAdd={() => handleAddToCart('Cap', 'AED 5')} />
       </div>
       <div id="bed-sheets" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bed Sheets</h3>
-        <PriceItem title="Bed Sheet - All Sizes" price="AED 25" onAdd={() => handleAddToCart("Bed Sheet - All Sizes", "AED 25")} />
+        <PriceItem title="Bed Sheet Big" price="AED 10" onAdd={() => handleAddToCart('Bed Sheet Big', 'AED 10')} />
+        <PriceItem title="Bed Sheet Small" price="AED 8" onAdd={() => handleAddToCart('Bed Sheet Small', 'AED 8')} />
+        <PriceItem title="Bed Spread" price="AED 25" onAdd={() => handleAddToCart('Bed Spread', 'AED 25')} />
+        <PriceItem
+          title="Bed Spread Big"
+          price="AED 25"
+          onAdd={() => handleAddToCart('Bed Spread Big', 'AED 25')}
+        />
       </div>
       <div id="duvet-covers" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Duvet Covers</h3>
-        <PriceItem title="Duvet Cover - All Sizes" price="AED 30" onAdd={() => handleAddToCart("Duvet Cover - All Sizes", "AED 30")} />
+        <PriceItem title="Blanket" price="AED 20" onAdd={() => handleAddToCart('Blanket', 'AED 20')} />
+        <PriceItem title="Blanket Big" price="AED 25" onAdd={() => handleAddToCart('Blanket Big', 'AED 25')} />
       </div>
       <div id="pillow-cases-cushion-covers" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Pillow Cases & Cushion Covers</h3>
-        <PriceItem title="Pillow Case" price="AED 9" onAdd={() => handleAddToCart("Pillow Case", "AED 9")} />
+        <PriceItem title="Pillow Cover" price="AED 4" onAdd={() => handleAddToCart('Pillow Cover', 'AED 4')} />
+        <PriceItem title="Pillow" price="AED 10" onAdd={() => handleAddToCart('Pillow', 'AED 10')} />
       </div>
       <div id="bathroom-items" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bathroom Items</h3>
-        <PriceItem title="Bath Mat" price="AED 18" onAdd={() => handleAddToCart("Bath Mat", "AED 18")} />
-        <PriceItem title="Bath Robe" price="AED 18" onAdd={() => handleAddToCart("Bath Robe", "AED 18")} />
-        <PriceItem title="Bath Towel" price="AED 8" onAdd={() => handleAddToCart("Bath Towel", "AED 8")} />
-        <PriceItem title="Face Towel" price="AED 8" onAdd={() => handleAddToCart("Face Towel", "AED 8")} />
-        <PriceItem title="Beach / Pool Towel" price="AED 8" onAdd={() => handleAddToCart("Beach / Pool Towel", "AED 8")} />
-        <PriceItem title="Hand Towel" price="AED 8" onAdd={() => handleAddToCart("Hand Towel", "AED 8")} />
+        <PriceItem title="Towel" price="AED 6" onAdd={() => handleAddToCart('Towel', 'AED 6')} />
+        <PriceItem title="Towel Small" price="AED 5" onAdd={() => handleAddToCart('Towel Small', 'AED 5')} />
+        <PriceItem title="Bath Towel" price="AED 10" onAdd={() => handleAddToCart('Bath Towel', 'AED 10')} />
+      </div>
+      <div id="carpets-curtains" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Carpets & Curtains</h3>
+        <PriceItem
+          title="Curtains"
+          price="AED 15-20"
+          note="* Price varies by size"
+          onAdd={() => handleAddToCart('Curtains', 'AED 15-20')}
+        />
+        <PriceItem
+          title="Curtain Rubber"
+          price="AED 40"
+          note="* Per meter"
+          onAdd={() => handleAddToCart('Curtain Rubber', 'AED 40')}
+        />
+        <PriceItem title="Carpet" price="AED 15" onAdd={() => handleAddToCart('Carpet', 'AED 15')} />
       </div>
     </ServiceCard>
   );
@@ -349,65 +417,122 @@ const LaundryServices = () => {
         <button className="text-[#64748B] hover:text-[#008080]">Details</button>
       </div>
       <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-5 sm:gap-2 sm:mb-6 sm:pb-0">
-        {['Shirts', 'Tops', 'Bottoms', 'Dresses', 'Traditional Items', 'Outerwear', 'Bed Sheets', 'Duvet Covers', 'Pillow Cases & Cushion Covers', 'Others'].map((cat) => (
-          <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
+        {[
+          'Shirts',
+          'Tops',
+          'Bottoms',
+          'Suits',
+          'Dresses',
+          'Traditional Items',
+          'Outerwear',
+          'Accessories',
+          'Bed Sheets',
+          'Pillow Cases & Cushion Covers',
+        ].map((cat) => (
+          <CategoryButton
+            key={cat}
+            label={cat}
+            targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()}
+            isActive={false}
+          />
         ))}
       </div>
       <div id="shirts">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Shirts</h3>
-        <PriceItem title="Shirt on Hanger" price="AED 9" onAdd={() => handleAddToCart("Shirt on Hanger", "AED 9")} />
-        <PriceItem title="Shirt Folded" price="AED 9" onAdd={() => handleAddToCart("Shirt Folded", "AED 9")} />
+        <PriceItem title="Shirt" price="AED 2" onAdd={() => handleAddToCart('Shirt', 'AED 2')} />
+        <PriceItem title="T Shirt" price="AED 2" onAdd={() => handleAddToCart('T Shirt', 'AED 2')} />
+        <PriceItem
+          title="Under T Shirt"
+          price="AED 1.5"
+          onAdd={() => handleAddToCart('Under T Shirt', 'AED 1.5')}
+        />
       </div>
       <div id="tops" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Tops</h3>
-        <PriceItem title="T-Shirt on Hanger" price="AED 10" onAdd={() => handleAddToCart("T-Shirt on Hanger", "AED 10")} />
-        <PriceItem title="T-Shirt Folded" price="AED 12" onAdd={() => handleAddToCart("T-Shirt Folded", "AED 12")} />
-        <PriceItem title="Polo Shirt on Hanger" price="AED 10" onAdd={() => handleAddToCart("Polo Shirt on Hanger", "AED 10")} />
-        <PriceItem title="Polo Shirt Folded" price="AED 12" onAdd={() => handleAddToCart("Polo Shirt Folded", "AED 12")} />
-        <PriceItem title="Pullover" price="AED 18" onAdd={() => handleAddToCart("Pullover", "AED 18")} />
-        <PriceItem title="Cardigan" price="AED 18" onAdd={() => handleAddToCart("Cardigan", "AED 18")} />
-        <PriceItem title="Top / Blouse" price="AED 10" onAdd={() => handleAddToCart("Top / Blouse", "AED 10")} />
+        <PriceItem title="Top" price="AED 3" onAdd={() => handleAddToCart('Top', 'AED 3')} />
+        <PriceItem title="Blouse" price="AED 3" onAdd={() => handleAddToCart('Blouse', 'AED 3')} />
+        <PriceItem title="Sweater" price="AED 5" onAdd={() => handleAddToCart('Sweater', 'AED 5')} />
       </div>
       <div id="bottoms" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bottoms</h3>
-        <PriceItem title="Shorts" price="AED 14" onAdd={() => handleAddToCart("Shorts", "AED 14")} />
-        <PriceItem title="Skirt" price="AED 17" onAdd={() => handleAddToCart("Skirt", "AED 17")} />
-        <PriceItem title="Skirt - Delicate" price="AED 15" note="* Silk or other delicate material" onAdd={() => handleAddToCart("Skirt - Delicate", "AED 15")} />
-        <PriceItem title="Trousers / Jeans" price="AED 15" onAdd={() => handleAddToCart("Trousers / Jeans", "AED 15")} />
+        <PriceItem title="Trouser" price="AED 2" onAdd={() => handleAddToCart('Trouser', 'AED 2')} />
+        <PriceItem title="Pajama" price="AED 2" onAdd={() => handleAddToCart('Pajama', 'AED 2')} />
+        <PriceItem title="Half Pant" price="AED 2" onAdd={() => handleAddToCart('Half Pant', 'AED 2')} />
+        <PriceItem title="Skirt" price="AED 3" onAdd={() => handleAddToCart('Skirt', 'AED 3')} />
+        <PriceItem title="Lungi" price="AED 2" onAdd={() => handleAddToCart('Lungi', 'AED 2')} />
+      </div>
+      <div id="suits" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Suits</h3>
+        <PriceItem title="Suit" price="AED 8" onAdd={() => handleAddToCart('Suit', 'AED 8')} />
+        <PriceItem title="Army Suit" price="AED 6" onAdd={() => handleAddToCart('Army Suit', 'AED 6')} />
+        <PriceItem
+          title="Pakistani Men Suit"
+          price="AED 4"
+          onAdd={() => handleAddToCart('Pakistani Men Suit', 'AED 4')}
+        />
+        <PriceItem
+          title="Pakistani Ladies Suit"
+          price="AED 6"
+          onAdd={() => handleAddToCart('Pakistani Ladies Suit', 'AED 6')}
+        />
+        <PriceItem title="Coverall" price="AED 4" onAdd={() => handleAddToCart('Coverall', 'AED 4')} />
       </div>
       <div id="dresses" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Dresses</h3>
-        <PriceItem title="Dress" price="AED 28" onAdd={() => handleAddToCart("Dress", "AED 28")} />
-        <PriceItem title="Dress - Delicate" price="AED 32" onAdd={() => handleAddToCart("Dress - Delicate", "AED 32")} />
-        <PriceItem title="Dress - Evening" price="AED 35" onAdd={() => handleAddToCart("Dress - Evening", "AED 35")} />
-        <PriceItem title="Jumpsuit" price="AED 35" onAdd={() => handleAddToCart("Jumpsuit", "AED 35")} />
+        <PriceItem title="Baby Dress" price="AED 5" onAdd={() => handleAddToCart('Baby Dress', 'AED 5')} />
+        <PriceItem title="Ladies Dress" price="AED 6" onAdd={() => handleAddToCart('Ladies Dress', 'AED 6')} />
+        <PriceItem
+          title="Ladies Dress Big"
+          price="AED 7"
+          onAdd={() => handleAddToCart('Ladies Dress Big', 'AED 7')}
+        />
+        <PriceItem title="Sari" price="AED 5" onAdd={() => handleAddToCart('Sari', 'AED 5')} />
       </div>
       <div id="traditional-items" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Traditional Items</h3>
-        <PriceItem title="Abaya" price="AED 10" onAdd={() => handleAddToCart("Abaya", "AED 10")} />
-        <PriceItem title="Dupatta - Shila" price="AED 10" onAdd={() => handleAddToCart("Dupatta - Shila", "AED 10")} />
-        <PriceItem title="Ghutra" price="AED 7" onAdd={() => handleAddToCart("Ghutra", "AED 7")} />
-        <PriceItem title="Kandura / Dishdasha" price="AED 9" onAdd={() => handleAddToCart("Kandura / Dishdasha", "AED 9")} />
-        <PriceItem title="Lungi" price="AED 13" onAdd={() => handleAddToCart("Lungi", "AED 13")} />
-        <PriceItem title="Saree" price="AED 40" onAdd={() => handleAddToCart("Saree", "AED 40")} />
-        <PriceItem title="Shalwar/Kurta" price="AED 15" onAdd={() => handleAddToCart("Shalwar/Kurta", "AED 15")} />
+        <PriceItem
+          title="Summer Kandoora"
+          price="AED 3"
+          onAdd={() => handleAddToCart('Summer Kandoora', 'AED 3')}
+        />
+        <PriceItem title="Hot Kandoora" price="AED 5" onAdd={() => handleAddToCart('Hot Kandoora', 'AED 5')} />
+        <PriceItem title="Tarbooj" price="AED 0" onAdd={() => handleAddToCart('Tarbooj', 'AED 0')} />
+        <PriceItem title="Ghutra" price="AED 3" onAdd={() => handleAddToCart('Ghutra', 'AED 3')} />
+        <PriceItem title="Hot Ghutra" price="AED 4" onAdd={() => handleAddToCart('Hot Ghutra', 'AED 4')} />
+        <PriceItem title="Shimagh" price="AED 3" onAdd={() => handleAddToCart('Shimagh', 'AED 3')} />
+        <PriceItem title="Ghafia" price="AED 1" onAdd={() => handleAddToCart('Ghafia', 'AED 1')} />
+        <PriceItem title="Abaya" price="AED 5" onAdd={() => handleAddToCart('Abaya', 'AED 5')} />
+        <PriceItem title="Shella" price="AED 2" onAdd={() => handleAddToCart('Shella', 'AED 2')} />
       </div>
       <div id="outerwear" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Outerwear</h3>
-        <PriceItem title="Jacket / Blazer" price="AED 34" onAdd={() => handleAddToCart("Jacket / Blazer", "AED 34")} />
-        <PriceItem title="Waistcoat" price="AED 11" onAdd={() => handleAddToCart("Waistcoat", "AED 11")} />
+        <PriceItem title="Jacket" price="AED 5" onAdd={() => handleAddToCart('Jacket', 'AED 5')} />
+      </div>
+      <div id="accessories" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Accessories</h3>
+        <PriceItem title="Tie" price="AED 3" onAdd={() => handleAddToCart('Tie', 'AED 3')} />
+        <PriceItem title="Cap" price="AED 2" onAdd={() => handleAddToCart('Cap', 'AED 2')} />
+        <PriceItem title="Under Wear" price="AED 1.5" onAdd={() => handleAddToCart('Under Wear', 'AED 1.5')} />
+        <PriceItem title="Socks" price="AED 1.5" onAdd={() => handleAddToCart('Socks', 'AED 1.5')} />
       </div>
       <div id="bed-sheets" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bed Sheets</h3>
-        <PriceItem title="Bed Sheet - All Sizes" price="AED 17" onAdd={() => handleAddToCart("Bed Sheet - All Sizes", "AED 17")} />
-      </div>
-      <div id="duvet-covers" className="mt-6">
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Duvet Covers</h3>
-        <PriceItem title="Duvet Cover - All Sizes" price="AED 25" onAdd={() => handleAddToCart("Duvet Cover - All Sizes", "AED 25")} />
+        <PriceItem title="Bed Sheet Big" price="AED 6" onAdd={() => handleAddToCart('Bed Sheet Big', 'AED 6')} />
+        <PriceItem title="Bed Sheet Small" price="AED 5" onAdd={() => handleAddToCart('Bed Sheet Small', 'AED 5')} />
+        <PriceItem title="Bed Spread" price="AED 0" onAdd={() => handleAddToCart('Bed Spread', 'AED 0')} />
+        <PriceItem
+          title="Bed Spread Big"
+          price="AED 0"
+          onAdd={() => handleAddToCart('Bed Spread Big', 'AED 0')}
+        />
       </div>
       <div id="pillow-cases-cushion-covers" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Pillow Cases & Cushion Covers</h3>
-        <PriceItem title="Pillow Case" price="AED 7" onAdd={() => handleAddToCart("Pillow Case", "AED 7")} />
+        <PriceItem
+          title="Pillow Cover"
+          price="AED 1.5"
+          onAdd={() => handleAddToCart('Pillow Cover', 'AED 1.5')}
+        />
       </div>
     </ServiceCard>
   );
@@ -415,56 +540,207 @@ const LaundryServices = () => {
   const duvetsContent = (
     <ServiceCard icon="fas fa-bed" title="Duvets & Bulky" description="Care for larger household items.">
       <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:mb-6 sm:pb-0">
-        {['Feather Duvets', 'Synthetic Duvets', 'Blankets & Bedspeads', 'Pillows', 'Mattress Protectors', 'Curtains'].map((cat) => (
-          <CategoryButton key={cat} label={cat} targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()} isActive={false} />
+        {['Blankets & Bedspreads', 'Pillows', 'Curtains', 'Carpets'].map((cat) => (
+          <CategoryButton
+            key={cat}
+            label={cat}
+            targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()}
+            isActive={false}
+          />
         ))}
       </div>
-      <div id="feather-duvets">
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Feather Duvets</h3>
-        <PriceItem title="Single" price="AED 65" onAdd={() => handleAddToCart("Feather Duvet - Single", "AED 65")} />
-        <PriceItem title="Double" price="AED 65" onAdd={() => handleAddToCart("Feather Duvet - Double", "AED 65")} />
-        <PriceItem title="King" price="AED 70" onAdd={() => handleAddToCart("Feather Duvet - King", "AED 70")} />
-        <PriceItem title="Super King" price="AED 70" onAdd={() => handleAddToCart("Feather Duvet - Super King", "AED 70")} />
-      </div>
-      <div id="synthetic-duvets" className="mt-6">
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Synthetic Duvets</h3>
-        <PriceItem title="Single" price="AED 55" onAdd={() => handleAddToCart("Synthetic Duvet - Single", "AED 55")} />
-        <PriceItem title="Double" price="AED 55" onAdd={() => handleAddToCart("Synthetic Duvet - Double", "AED 55")} />
-        <PriceItem title="King" price="AED 65" onAdd={() => handleAddToCart("Synthetic Duvet - King", "AED 65")} />
-        <PriceItem title="Super King" price="AED 65" onAdd={() => handleAddToCart("Synthetic Duvet - Super King", "AED 65")} />
-      </div>
-      <div id="blankets-bedspeads" className="mt-6">
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Blankets & Bedspeads</h3>
-        <PriceItem title="Single - Washable" price="AED 25" onAdd={() => handleAddToCart("Blanket - Single - Washable", "AED 25")} />
-        <PriceItem title="Double - Washable" price="AED 25" onAdd={() => handleAddToCart("Blanket - Double - Washable", "AED 25")} />
-        <PriceItem title="King - Washable" price="AED 45" onAdd={() => handleAddToCart("Blanket - King - Washable", "AED 45")} />
+      <div id="blankets-bedspreads">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Blankets & Bedspreads</h3>
+        <PriceItem title="Blanket" price="AED 20" onAdd={() => handleAddToCart('Blanket', 'AED 20')} />
+        <PriceItem title="Blanket Big" price="AED 25" onAdd={() => handleAddToCart('Blanket Big', 'AED 25')} />
+        <PriceItem title="Bed Spread" price="AED 25" onAdd={() => handleAddToCart('Bed Spread', 'AED 25')} />
+        <PriceItem
+          title="Bed Spread Big"
+          price="AED 25"
+          onAdd={() => handleAddToCart('Bed Spread Big', 'AED 25')}
+        />
       </div>
       <div id="pillows" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Pillows</h3>
-        <PriceItem title="Feather" price="AED 18" onAdd={() => handleAddToCart("Pillow - Feather", "AED 18")} />
-        <PriceItem title="Synthetic" price="AED 18" onAdd={() => handleAddToCart("Pillow - Synthetic", "AED 18")} />
-      </div>
-      <div id="mattress-protectors" className="mt-6">
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Mattress Protectors</h3>
-        <PriceItem title="All Sizes" price="AED 25" onAdd={() => handleAddToCart("Mattress Protector - All Size", "AED 25")} />
+        <PriceItem title="Pillow" price="AED 10" onAdd={() => handleAddToCart('Pillow', 'AED 10')} />
+        <PriceItem title="Pillow Cover" price="AED 4" onAdd={() => handleAddToCart('Pillow Cover', 'AED 4')} />
       </div>
       <div id="curtains" className="mt-6">
         <h3 className="text-xl font-bold text-[#1E293B] mb-4">Curtains</h3>
-        <PriceItem title="Standard - without blackout (per m²)" price="AED 18" onAdd={() => handleAddToCart("Standard Curtain - without blackout", "AED 18")} />
-        <PriceItem title="Standard - with blackout (per m²)" price="AED 25" onAdd={() => handleAddToCart("Standard Curtain - with blackout", "AED 25")} />
+        <PriceItem
+          title="Curtains"
+          price="AED 15-20"
+          note="* Price varies by size"
+          onAdd={() => handleAddToCart('Curtains', 'AED 15-20')}
+        />
+        <PriceItem
+          title="Curtain Rubber"
+          price="AED 40"
+          note="* Per meter"
+          onAdd={() => handleAddToCart('Curtain Rubber', 'AED 40')}
+        />
+      </div>
+      <div id="carpets" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Carpets</h3>
+        <PriceItem title="Carpet" price="AED 15" onAdd={() => handleAddToCart('Carpet', 'AED 15')} />
       </div>
     </ServiceCard>
   );
 
-  const sneakerCareContent = (
-    <ServiceCard icon="fas fa-sneaker" title="Sneaker Care" description="Expert cleaning for your footwear.">
+  const dryCleaningContent = (
+    <ServiceCard icon="fas fa-tint" title="Dry Cleaning" description="Professional dry cleaning for delicate items.">
       <div className="flex gap-4 mb-4 text-sm">
         <button className="text-[#1E293B] font-medium hover:text-[#008080]">Pricing</button>
-        <button className="text-[#64748B] hover:text-[#008080]">Details</button>
+        <button className="text-[#64748B] hover:text-[#008080]">Info</button>
       </div>
-      <div>
-        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Sneaker Cleaning</h3>
-        <PriceItem title="Per Pair" price="AED 89" onAdd={() => handleAddToCart("Sneaker Pair", "AED 89")} />
+      <div className="flex overflow-x-auto gap-1 mb-6 pb-1 sm:grid sm:grid-cols-3 sm:gap-2 sm:mb-6 sm:pb-0">
+        {[
+          'Shirts',
+          'Tops',
+          'Bottoms',
+          'Suits',
+          'Dresses',
+          'Traditional Items',
+          'Outerwear',
+          'Accessories & Homewear',
+          'Accessories',
+          'Bed Sheets',
+          'Duvet Covers',
+          'Pillow Cases & Cushion Covers',
+          'Bathroom Items',
+          'Carpets & Curtains',
+        ].map((cat) => (
+          <CategoryButton
+            key={cat}
+            label={cat}
+            targetId={cat.replace(/ & /g, '').replace(/ /g, '-').toLowerCase()}
+            isActive={false}
+          />
+        ))}
+      </div>
+      <div id="shirts">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Shirts</h3>
+        <PriceItem title="Shirt" price="AED 5" onAdd={() => handleAddToCart('Shirt', 'AED 5')} />
+        <PriceItem title="T Shirt" price="AED 5" onAdd={() => handleAddToCart('T Shirt', 'AED 5')} />
+        <PriceItem
+          title="Under T Shirt"
+          price="AED 3"
+          onAdd={() => handleAddToCart('Under T Shirt', 'AED 3')}
+        />
+      </div>
+      <div id="tops" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Tops</h3>
+        <PriceItem title="Top" price="AED 6" onAdd={() => handleAddToCart('Top', 'AED 6')} />
+        <PriceItem title="Blouse" price="AED 5" onAdd={() => handleAddToCart('Blouse', 'AED 5')} />
+        <PriceItem title="Sweater" price="AED 10" onAdd={() => handleAddToCart('Sweater', 'AED 10')} />
+      </div>
+      <div id="bottoms" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bottoms</h3>
+        <PriceItem title="Trouser" price="AED 5" onAdd={() => handleAddToCart('Trouser', 'AED 5')} />
+        <PriceItem title="Pajama" price="AED 5" onAdd={() => handleAddToCart('Pajama', 'AED 5')} />
+        <PriceItem title="Half Pant" price="AED 5" onAdd={() => handleAddToCart('Half Pant', 'AED 5')} />
+        <PriceItem title="Skirt" price="AED 6" onAdd={() => handleAddToCart('Skirt', 'AED 6')} />
+        <PriceItem title="Lungi" price="AED 4" onAdd={() => handleAddToCart('Lungi', 'AED 4')} />
+      </div>
+      <div id="suits" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Suits</h3>
+        <PriceItem title="Suit" price="AED 20" onAdd={() => handleAddToCart('Suit', 'AED 20')} />
+        <PriceItem title="Army Suit" price="AED 15" onAdd={() => handleAddToCart('Army Suit', 'AED 15')} />
+        <PriceItem
+          title="Pakistani Men Suit"
+          price="AED 10"
+          onAdd={() => handleAddToCart('Pakistani Men Suit', 'AED 10')}
+        />
+        <PriceItem
+          title="Pakistani Ladies Suit"
+          price="AED 15"
+          onAdd={() => handleAddToCart('Pakistani Ladies Suit', 'AED 15')}
+        />
+        <PriceItem title="Coverall" price="AED 10" onAdd={() => handleAddToCart('Coverall', 'AED 10')} />
+      </div>
+      <div id="dresses" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Dresses</h3>
+        <PriceItem title="Baby Dress" price="AED 10" onAdd={() => handleAddToCart('Baby Dress', 'AED 10')} />
+        <PriceItem title="Ladies Dress" price="AED 15" onAdd={() => handleAddToCart('Ladies Dress', 'AED 15')} />
+        <PriceItem
+          title="Ladies Dress Big"
+          price="AED 20"
+          onAdd={() => handleAddToCart('Ladies Dress Big', 'AED 20')}
+        />
+        <PriceItem title="Sari" price="AED 10" onAdd={() => handleAddToCart('Sari', 'AED 10')} />
+      </div>
+      <div id="traditional-items" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Traditional Items</h3>
+        <PriceItem
+          title="Summer Kandoora"
+          price="AED 10"
+          onAdd={() => handleAddToCart('Summer Kandoora', 'AED 10')}
+        />
+        <PriceItem title="Hot Kandoora" price="AED 15" onAdd={() => handleAddToCart('Hot Kandoora', 'AED 15')} />
+        <PriceItem title="Tarbooj" price="AED 2" onAdd={() => handleAddToCart('Tarbooj', 'AED 2')} />
+        <PriceItem title="Ghutra" price="AED 5" onAdd={() => handleAddToCart('Ghutra', 'AED 5')} />
+        <PriceItem title="Hot Ghutra" price="AED 6" onAdd={() => handleAddToCart('Hot Ghutra', 'AED 6')} />
+        <PriceItem title="Shimagh" price="AED 5" onAdd={() => handleAddToCart('Shimagh', 'AED 5')} />
+        <PriceItem title="Ghafia" price="AED 2" onAdd={() => handleAddToCart('Ghafia', 'AED 2')} />
+        <PriceItem title="Abaya" price="AED 10" onAdd={() => handleAddToCart('Abaya', 'AED 10')} />
+        <PriceItem title="Shella" price="AED 5" onAdd={() => handleAddToCart('Shella', 'AED 5')} />
+      </div>
+      <div id="outerwear" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Outerwear</h3>
+        <PriceItem title="Jacket" price="AED 10" onAdd={() => handleAddToCart('Jacket', 'AED 10')} />
+      </div>
+      <div id="accessories-homewear" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Accessories & Homewear</h3>
+        <PriceItem title="Under Wear" price="AED 3" onAdd={() => handleAddToCart('Under Wear', 'AED 3')} />
+        <PriceItem title="Socks" price="AED 3" onAdd={() => handleAddToCart('Socks', 'AED 3')} />
+      </div>
+      <div id="accessories" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Accessories</h3>
+        <PriceItem title="Tie" price="AED 6" onAdd={() => handleAddToCart('Tie', 'AED 6')} />
+        <PriceItem title="Cap" price="AED 5" onAdd={() => handleAddToCart('Cap', 'AED 5')} />
+      </div>
+      <div id="bed-sheets" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bed Sheets</h3>
+        <PriceItem title="Bed Sheet Big" price="AED 10" onAdd={() => handleAddToCart('Bed Sheet Big', 'AED 10')} />
+        <PriceItem title="Bed Sheet Small" price="AED 8" onAdd={() => handleAddToCart('Bed Sheet Small', 'AED 8')} />
+        <PriceItem title="Bed Spread" price="AED 25" onAdd={() => handleAddToCart('Bed Spread', 'AED 25')} />
+        <PriceItem
+          title="Bed Spread Big"
+          price="AED 25"
+          onAdd={() => handleAddToCart('Bed Spread Big', 'AED 25')}
+        />
+      </div>
+      <div id="duvet-covers" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Duvet Covers</h3>
+        <PriceItem title="Blanket" price="AED 20" onAdd={() => handleAddToCart('Blanket', 'AED 20')} />
+        <PriceItem title="Blanket Big" price="AED 25" onAdd={() => handleAddToCart('Blanket Big', 'AED 25')} />
+      </div>
+      <div id="pillow-cases-cushion-covers" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Pillow Cases & Cushion Covers</h3>
+        <PriceItem title="Pillow Cover" price="AED 4" onAdd={() => handleAddToCart('Pillow Cover', 'AED 4')} />
+        <PriceItem title="Pillow" price="AED 10" onAdd={() => handleAddToCart('Pillow', 'AED 10')} />
+      </div>
+      <div id="bathroom-items" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Bathroom Items</h3>
+        <PriceItem title="Towel" price="AED 6" onAdd={() => handleAddToCart('Towel', 'AED 6')} />
+        <PriceItem title="Towel Small" price="AED 5" onAdd={() => handleAddToCart('Towel Small', 'AED 5')} />
+        <PriceItem title="Bath Towel" price="AED 10" onAdd={() => handleAddToCart('Bath Towel', 'AED 10')} />
+      </div>
+      <div id="carpets-curtains" className="mt-6">
+        <h3 className="text-xl font-bold text-[#1E293B] mb-4">Carpets & Curtains</h3>
+        <PriceItem
+          title="Curtains"
+          price="AED 15-20"
+          note="* Price varies by size"
+          onAdd={() => handleAddToCart('Curtains', 'AED 15-20')}
+        />
+        <PriceItem
+          title="Curtain Rubber"
+          price="AED 40"
+          note="* Per meter"
+          onAdd={() => handleAddToCart('Curtain Rubber', 'AED 40')}
+        />
+        <PriceItem title="Carpet" price="AED 15" onAdd={() => handleAddToCart('Carpet', 'AED 15')} />
       </div>
     </ServiceCard>
   );
@@ -474,7 +750,7 @@ const LaundryServices = () => {
     'Clean & Iron': cleanAndIronContent,
     'Ironing': ironingContent,
     'Duvets & Bulky': duvetsContent,
-    'Sneaker Care': sneakerCareContent,
+    'Dry Cleaning': dryCleaningContent,
   };
 
   return (
@@ -483,7 +759,9 @@ const LaundryServices = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#1E293B] mb-4">Laundry & Care Services</h1>
-          <p className="text-lg text-[#64748B] mb-6">Affordable laundry services with no surprises. Choose the plan that fits your needs!</p>
+          <p className="text-lg text-[#64748B] mb-6">
+            Affordable laundry services with no surprises. Choose the plan that fits your needs!
+          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -499,9 +777,7 @@ const LaundryServices = () => {
                 />
               ))}
             </div>
-            <div className="bg-white shadow rounded-lg p-6">
-              {contentMap[activeTab]}
-            </div>
+            <div className="bg-white shadow rounded-lg p-6">{contentMap[activeTab]}</div>
           </div>
 
           <div className="hidden sm:block w-80">
@@ -511,7 +787,7 @@ const LaundryServices = () => {
                 navigate('/booking', { state: { cart } });
               }}
               isOpen={true}
-              onClose={() => { }}
+              onClose={() => {}}
               onRemoveItem={handleRemoveFromCart}
             />
           </div>
@@ -524,7 +800,14 @@ const LaundryServices = () => {
         whileTap={{ scale: 0.9 }}
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
-        <i className="fas fa-shopping-cart"></i>
+        <div className="relative">
+          <i className="fas fa-shopping-cart"></i>
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {cart.length}
+            </span>
+          )}
+        </div>
       </motion.button>
 
       <div className="sm:hidden">

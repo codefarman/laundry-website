@@ -6,7 +6,7 @@ import OrderControl from '../Components/OrderControl';
 import Quates from '../Components/Quates';
 import Footer from '../Components/Footer';
 import { Truck, WashingMachine, CalendarDays, MapPin, Phone } from 'lucide-react';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const cities = ['Abu Dhabi'];
 
@@ -68,51 +68,49 @@ const useTypingEffect = (words, typingSpeed = 50, pause = 800) => {
   return displayed;
 };
 
-// Haversine distance formula
 const getDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Earth radius in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
 
 const Home = () => {
   const city = useTypingEffect(cities);
-  const [nearestBranch, setNearestBranch] = useState(branches[0]); // Default to Main
-  const [locationError, setLocationError] = useState(false);
+  const [nearestBranch, setNearestBranch] = useState(branches[0]);
+  const [showMobileCTA, setShowMobileCTA] = useState(false);
 
-  // Auto-select nearest branch using geolocation
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          let nearest = branches[0];
-          let minDist = Infinity;
-          branches.forEach((branch) => {
-            const dist = getDistance(userLat, userLng, branch.lat, branch.lng);
-            if (dist < minDist) {
-              minDist = dist;
-              nearest = branch;
-            }
-          });
-          setNearestBranch(nearest);
-        },
-        () => {
-          setLocationError(true); // Default to Main if denied
-        }
-      );
+      navigator.geolocation.getCurrentPosition((position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        let nearest = branches[0];
+        let minDist = Infinity;
+        branches.forEach((branch) => {
+          const dist = getDistance(userLat, userLng, branch.lat, branch.lng);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = branch;
+          }
+        });
+        setNearestBranch(nearest);
+      });
     }
+
+    const handleScroll = () => {
+      setShowMobileCTA(window.scrollY > 200);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSchedule = () => {
-    // Save nearest branch to localStorage for use in booking page
     localStorage.setItem('selectedBranch', JSON.stringify(nearestBranch));
   };
 
@@ -120,90 +118,132 @@ const Home = () => {
     <>
       <Navbar />
 
-      {/* Hero Section - Updated with poster branding */}
-      <div className="min-h-screen lg:min-h-[800px] bg-[#008080] text-white pt-[120px] pb-14 px-4 sm:px-8 flex flex-col justify-center">
-        <div className="max-w-[1300px] w-full mx-auto flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
-          {/* Left Side - Text */}
-          <div className="lg:w-1/2 w-full animate-fadeIn">
-            <p className="text-sm font-semibold text-yellow-400 mb-2 text-center sm:text-left">Since 2004</p>
-            <h1 className="text-[2rem] sm:text-[2.5rem] md:text-[3rem] font-extrabold leading-tight text-white text-center sm:text-left">
-              Towers Laundry
-              <br />
-              <span className="text-yellow-400">All Dry Steam More Clean</span>
-              <br />
-              in <span className="px-2 text-[#111827] bg-white lg:text-5xl sm:text-xl font-bold rounded-md">{city}&nbsp;</span>
-            </h1>
-            <p className="mt-4 text-sm sm:text-base text-white/90 text-center sm:text-left">
-              Full Dry Cleaning & Laundry Services · 3 Branches · Free Home Delivery · 1hr Service
-            </p>
-
-            {/* CTA Button - Automatic branch assignment */}
-            <div className="mt-6  sm:w-auto">
-              <Link to="/booking" onClick={handleSchedule}>
-                <button className="bg-[#F4B400] text-[#111827] px-5 py-2 rounded-md hover:bg-yellow-500 transition w-full sm:w-auto">
-                  Schedule at Nearest Branch
-                </button>
-              </Link>
-            </div>
-
-            {/* Mobile-only icons */}
-            <div className="mt-6 flex sm:hidden justify-around text-white">
-              <div className="flex flex-col items-center">
-                <Truck className="w-8 h-8" />
-                <span className="text-xs mt-1">Free Pickup</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <WashingMachine className="w-8 h-8" />
-                <span className="text-xs mt-1">Clean Wash</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <CalendarDays className="w-8 h-8" />
-                <span className="text-xs mt-1">1hr Service</span>
-              </div>
-            </div>
+      {/* Desktop Hero */}
+      <section className="hidden lg:flex min-h-screen bg-[#017C80] items-center justify-between px-20 pt-[100px]">
+        {/* Left Text */}
+        <div className="max-w-lg text-white">
+          <p className="text-yellow-400 font-semibold">Since 2004</p>
+          <h1 className="text-5xl font-bold mt-2">
+            تاورز لاندري
+          </h1>
+          <h1 className="text-5xl font-bold">TOWERS LAUNDRY</h1>
+          <h2 className="text-4xl font-bold text-yellow-400 mt-1">
+            All Dry Steam More Clean
+          </h2>
+          <div className="flex mt-2 items-center text-lg font-semibold">
+            <span className="mr-2">in</span>
+            <span>{city}</span>
           </div>
-
-          {/* Right Side - Image (Hide on mobile) */}
-          <div className="hidden md:flex w-full md:w-1/2 justify-center">
-            <div className="w-[320px] sm:w-[420px] lg:w-[500px] h-[320px] sm:h-[420px] lg:h-[500px] rounded-full overflow-hidden shadow-lg">
+          <p className="mt-4 text-white/80">
+            Full Dry Cleaning & Laundry Services · 3 Branches · Free Home Delivery · 1hr Service
+          </p>
+          <Link to="/booking" onClick={handleSchedule}>
+            <button className="mt-6 bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold hover:bg-yellow-500">
+              Schedule at Nearest Branch
+            </button>
+          </Link>
+        </div>
+        {/* Right Image */}
+        <div className="w-[320px] sm:w-[420px] lg:w-[500px] h-[320px] sm:h-[420px] lg:h-[500px] rounded-full overflow-hidden shadow-lg">
               <img
                 src="/images/homeimg.png"
                 alt="Hero"
                 className="object-cover w-full h-full"
               />
             </div>
+      </section>
+
+      {/* Mobile Hero */}
+      <section
+        className="block lg:hidden relative bg-cover bg-center  min-h-[100vh] flex items-center justify-center pt-[90px]"
+        style={{ backgroundImage: "url('/images/homeimg.png')" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70"></div>
+        <div className="relative z-10 text-center px-6">
+          <p className="text-yellow-400 font-semibold text-lg mb-2">Since 2004</p>
+          <h1 className="text-4xl font-extrabold text-white leading-tight">
+            <span className="block">تاورز لاندري</span>
+            <span className="block">TOWERS LAUNDRY</span>
+          </h1>
+          <p className="text-xl text-yellow-400 mt-2">All Steam More Clean</p>
+          <p className="text-lg text-white/90 mt-1">جميع خدمات التنظيف بالبخار</p>
+          <div className="h-1 w-16 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
+          <p className="mt-4 text-white/90">
+            Full Dry Cleaning & Laundry Services · Free Home Delivery · 1 Hour Service
+          </p>
+          <div className="mt-2 flex items-center justify-center text-white font-bold text-lg">
+            <span className="mr-1">in</span>
+            <span>{city}</span>
+          </div>
+          <Link to="/booking" onClick={handleSchedule}>
+            <button className="mt-6 bg-yellow-400 text-black px-8 mb-2 py-3 rounded-lg hover:bg-yellow-500 font-semibold text-lg shadow-lg">
+              Schedule at Nearest Branch
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Services */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center text-[#008080] mb-10">Our Services</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Free Pickup" />
+            <ServiceCard icon={<WashingMachine className="w-8 h-8" />} title="Clean Wash" />
+            <ServiceCard icon={<CalendarDays className="w-8 h-8" />} title="1hr Service" />
+            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Carpet Cleaning" />
+            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Dry Cleaning" />
+            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Fast Delivery" />
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* New Branches Section - Creative grid with hover effects */}
-      <div className="py-16 bg-gray-100">
-        <div className="max-w-[1300px] mx-auto px-4">
+      {/* Branches */}
+      <section className="py-12 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-[#008080] mb-10">Our Branches</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {branches.map((branch, index) => (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transition duration-300 border-t-4 border-yellow-400"
-              >
-                <h3 className="text-xl font-semibold text-[#008080] mb-2">{branch.name}</h3>
-                <p className="flex items-center text-gray-600 mb-2"><MapPin className="w-5 h-5 mr-2" /> {branch.address}</p>
-                <p className="flex items-center text-gray-600"><Phone className="w-5 h-5 mr-2" /> {branch.phone}</p>
+              <div key={index} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+                <h3 className="text-xl font-bold text-[#008080] mb-2">{branch.name}</h3>
+                <p className="flex items-center text-gray-700">
+                  <MapPin className="w-5 h-5 mr-2" /> {branch.address}
+                </p>
+                <p className="flex items-center mt-2 text-gray-700">
+                  <Phone className="w-5 h-5 mr-2" /> {branch.phone}
+                </p>
               </div>
             ))}
           </div>
           <p className="text-center mt-8 text-gray-600">Suggestions & Complaints: 055 1656 700</p>
         </div>
-      </div>
+      </section>
 
-      {/* Other Sections */}
       <HowItWorks />
       <LaundryServices />
       <OrderControl />
       <Quates />
       <Footer />
+
+      {/* Mobile CTA */}
+      {showMobileCTA && (
+        <div className="fixed bottom-6 left-6 right-6 sm:hidden z-50 animate-slideUp">
+          <Link to="/booking" onClick={handleSchedule}>
+            <button className="w-full bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold shadow-lg hover:bg-yellow-500 transition">
+              Schedule Now
+            </button>
+          </Link>
+        </div>
+      )}
     </>
   );
 };
+
+const ServiceCard = ({ icon, title }) => (
+  <div className="flex flex-col items-center bg-white rounded-lg p-4 shadow hover:shadow-lg transition">
+    <div className="text-[#008080]">{icon}</div>
+    <p className="mt-2 text-sm font-medium text-gray-700 text-center">{title}</p>
+  </div>
+);
 
 export default Home;
