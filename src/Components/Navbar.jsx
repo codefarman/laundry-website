@@ -278,8 +278,12 @@ const Navbar = () => {
 
       {/* Mobile Menu for non-logged in */}
       {menuOpen && !user && (
-        <div className={`md:hidden flex flex-col space-y-4 px-6 pb-6 ${isScrolled ? 'bg-white text-gray-900' : 'bg-gradient-to-b from-black/70 via-black/50 to-black/70 text-white'}`}>
-          <Link to="/login" className={`px-5 py-2 rounded-md mt-2 text-black ${isScrolled ? 'bg-[#F4B400]' : 'bg-gradient-to-b from-black/70 via-black/50 to-black/70 text-white'}`}>Log in</Link>
+        <div className={`md:hidden flex flex-col space-y-4 px-6 pb-6 ${isScrolled ? 'bg-white text-gray-900' : `${
+                isHome ? ' md:bg-[#017C80]' : 'bg-[#017C80]'
+              } text-white`}`}>
+          <Link to="/login" className={`px-5 py-2 rounded-md mt-2 text-black ${isScrolled ? 'bg-[#F4B400]' : `${
+                isHome ? ' bg-gray-500 text-white md:bg-white' : 'bg-white '
+              } text-black`}`}>Log in</Link>
           <Link to="/how-it-works" className="hover:text-[#60A5FA]">How it works</Link>
           <Link to="/prices" className="hover:text-[#60A5FA]">Prices & Services</Link>
           <Link to="/about" className="hover:text-[#60A5FA]">About us</Link>
