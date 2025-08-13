@@ -5,7 +5,7 @@ import LaundryServices from '../Components/LaundryServices';
 import OrderControl from '../Components/OrderControl';
 import Quates from '../Components/Quates';
 import Footer from '../Components/Footer';
-import { Truck, WashingMachine, CalendarDays, MapPin, Phone } from 'lucide-react';
+import { Truck, WashingMachine, CalendarDays, Layers, Shirt, Package, MapPin, Phone } from "lucide-react";
 import { Link } from 'react-router-dom';
 
 const cities = ['Abu Dhabi'];
@@ -145,12 +145,12 @@ const Home = () => {
         </div>
         {/* Right Image */}
         <div className="w-[320px] sm:w-[420px] lg:w-[500px] h-[320px] sm:h-[420px] lg:h-[500px] rounded-full overflow-hidden shadow-lg">
-              <img
-                src="/images/homeimg.png"
-                alt="Hero"
-                className="object-cover w-full h-full"
-              />
-            </div>
+          <img
+            src="/images/homeimg.png"
+            alt="Hero"
+            className="object-cover w-full h-full"
+          />
+        </div>
       </section>
 
       {/* Mobile Hero */}
@@ -184,19 +184,22 @@ const Home = () => {
       </section>
 
       {/* Services */}
-      <section className="py-12 bg-white">
+      <section className="py-8 bg-white sm:py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-[#008080] mb-10">Our Services</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
-            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Free Pickup" />
-            <ServiceCard icon={<WashingMachine className="w-8 h-8" />} title="Clean Wash" />
-            <ServiceCard icon={<CalendarDays className="w-8 h-8" />} title="1hr Service" />
-            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Carpet Cleaning" />
-            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Dry Cleaning" />
-            <ServiceCard icon={<Truck className="w-8 h-8" />} title="Fast Delivery" />
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#008080] mb-6 sm:mb-10">
+            Our Services
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6">
+            <ServiceCard icon={<Truck className="w-7 h-7 sm:w-8 sm:h-8" />} title="Free Pickup" />
+            <ServiceCard icon={<WashingMachine className="w-7 h-7 sm:w-8 sm:h-8" />} title="Clean Wash" />
+            <ServiceCard icon={<CalendarDays className="w-7 h-7 sm:w-8 sm:h-8" />} title="1hr Service" />
+            <ServiceCard icon={<Layers className="w-7 h-7 sm:w-8 sm:h-8" />} title="Carpet Cleaning" />
+            <ServiceCard icon={<Shirt className="w-7 h-7 sm:w-8 sm:h-8" />} title="Dry Cleaning" />
+            <ServiceCard icon={<Package className="w-7 h-7 sm:w-8 sm:h-8" />} title="Fast Delivery" />
           </div>
         </div>
       </section>
+
 
       {/* Branches */}
       <section className="py-12 bg-gray-50">
