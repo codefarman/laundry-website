@@ -1,57 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../Components/Navbar';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { login, signup, initiateSocialLogin } from '../Utils/api';
 
 const LoginSignupPage = () => {
   const [activeTab, setActiveTab] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState(''); // For signup
-  const [confirmPassword, setConfirmPassword] = useState(''); // For signup
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const token = query.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        localStorage.setItem('user', JSON.stringify({ email: payload.email, role: payload.role }));
+        window.dispatchEvent(new Event('userLogin'));
+        navigate(payload.role === 'admin' ? '/admin' : '/booking', { replace: true });
+      } catch (err) {
+        console.error('Error decoding token:', err);
+        setError('Invalid token received');
+      }
+    }
+  }, [location, navigate]);
 
   const handleSocialLogin = (provider) => {
-    // Placeholder for social login implementation
-    alert(`Logging in with ${provider}... (Implement OAuth API here)`);
+    initiateSocialLogin(provider);
   };
 
-  const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  if (activeTab === 'login') {
-    // Example user data — replace with real API/Firebase response
-    const userData = {
-      name: 'John Doe',
-      email: email,
-    };
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
 
-    // Save user in localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-
-    // Let Navbar know login happened
-    window.dispatchEvent(new Event('userLogin'));
-
-    alert(`Logged in as: ${email}`);
-    navigate('/booking', { replace: true }); // Redirect after login
-
-  } else {
-    // Signup logic
-    if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+    if (activeTab === 'login' && (!email || !password)) {
+      setError('Email and password are required');
       return;
     }
 
-    alert(`Signing up with name: ${name}, email: ${email}, and password: ${password}`);
-    setActiveTab('login'); // Switch to login after signup
-  }
-};
+    if (activeTab === 'signup' && (!name || !email || !password || !confirmPassword)) {
+      setError('All fields are required');
+      return;
+    }
+
+    try {
+      if (activeTab === 'login') {
+        const data = await login(email, password);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.dispatchEvent(new Event('userLogin'));
+        console.log('Login successful, redirecting:', { email: data.user.email, role: data.user.role });
+        navigate(data.user.role === 'admin' ? '/admin' : '/booking', { replace: true });
+      } else {
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        await signup(name, email, password, confirmPassword);
+        setError('Signup successful! Please log in.');
+        setActiveTab('login');
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      }
+    } catch (error) {
+      setError(error.message || 'An error occurred');
+      console.error('Login/Signup error:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F1F5F9] to-[#E0F2F7] font-sans flex items-center justify-center py-12 px-4">
-    
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -62,9 +91,9 @@ const LoginSignupPage = () => {
           <p className="text-[#64748B] text-sm">
             {activeTab === 'login' ? 'Welcome back! Log in to continue.' : 'Join us to start your laundry journey.'}
           </p>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </motion.div>
 
-        {/* Tabs */}
         <div className="flex justify-center mb-8">
           <button
             className={`px-6 py-2 rounded-l-lg font-medium transition-all ${
@@ -88,7 +117,6 @@ const LoginSignupPage = () => {
           </button>
         </div>
 
-        {/* Social Login */}
         <div className="mb-6">
           <motion.div
             initial={{ opacity: 0 }}
@@ -117,28 +145,15 @@ const LoginSignupPage = () => {
               />
               Continue with Facebook
             </button>
-            <button
-              onClick={() => handleSocialLogin('Apple')}
-              className="w-full bg-white border-2 border-[#008080]/20 text-[#1E293B] py-3 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 transition-all shadow-sm"
-            >
-              <img
-                src="https://www.apple.com/favicon.ico"
-                alt="Apple"
-                className="w-5 h-5"
-              />
-              Continue with Apple
-            </button>
           </motion.div>
         </div>
 
-        {/* Divider */}
         <div className="relative flex items-center mb-6">
           <div className="flex-grow border-t border-[#008080]/20"></div>
           <span className="flex-shrink mx-4 text-[#64748B] text-sm">Or with email</span>
           <div className="flex-grow border-t border-[#008080]/20"></div>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           {activeTab === 'signup' && (
             <div>
@@ -208,7 +223,6 @@ const LoginSignupPage = () => {
           </motion.button>
         </form>
 
-        {/* Trust and Security */}
         <p className="text-xs text-[#64748B] mt-6 text-center">
           Secured with <span className="text-[#008080] font-medium">SSL Encryption</span> | Your data is safe with us.
         </p>

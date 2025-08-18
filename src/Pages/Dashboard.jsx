@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { api } from '../Utils/api';
+import  api  from '../Utils/api';
 import Sidebar from '../Components/Sidebar';
 import StatsCard from '../Components/StatsCard';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaTshirt, FaSoap, FaTruck, FaArrowRight, FaSprayCan } from 'react-icons/fa';
+import { Link} from 'react-router-dom';
 
 const LaundryServices = () => {
     return (
@@ -42,9 +43,11 @@ const LaundryServices = () => {
                             Enjoy spotless clothes without lifting a finger. We pick up, clean with care, and deliver fresh — all at unbeatable prices.
                         </p>
                         <div className="flex justify-center lg:justify-start">
+                            <Link to={'/prices'}>
                             <button className="bg-[#F4B400] text-black font-semibold px-5 py-2.5 rounded-md hover:bg-yellow-400 transition duration-300 text-sm sm:text-base">
                                 Explore Pricing
                             </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -67,9 +70,11 @@ const LaundryServices = () => {
 
                 {/* Bottom Link */}
                 <div className="mt-6 text-center">
+                    <Link to={'/prices'}>
                     <a href="#" className="text-[#8ED6C6] font-semibold text-sm inline-flex items-center gap-1 hover:underline">
                         View all services <FaArrowRight className="text-xs" />
                     </a>
+                    </Link>
                 </div>
             </section>
         </div>

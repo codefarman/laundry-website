@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { api } from '../Utils/api';
+import api  from '../Utils/api';
 import Sidebar from '../Components/Sidebar';
 
 const Analytics = () => {

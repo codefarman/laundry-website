@@ -124,7 +124,7 @@ const Home = () => {
         <div className="max-w-lg text-white">
           <p className="text-yellow-400 font-semibold">Since 2004</p>
           <h1 className="text-5xl font-bold mt-2">
-            تاورز لاندري
+            مصبغة ابراج
           </h1>
           <h1 className="text-5xl font-bold">TOWERS LAUNDRY</h1>
           <h2 className="text-4xl font-bold text-yellow-400 mt-1">
@@ -162,11 +162,11 @@ const Home = () => {
         <div className="relative z-10 text-center px-6">
           <p className="text-yellow-400 font-semibold text-lg mb-2">Since 2004</p>
           <h1 className="text-4xl font-extrabold text-white leading-tight">
-            <span className="block">تاورز لاندري</span>
+            <span className="block">مصبغة ابراج</span>
             <span className="block">TOWERS LAUNDRY</span>
           </h1>
           <p className="text-xl text-yellow-400 mt-2">All Steam More Clean</p>
-          <p className="text-lg text-white/90 mt-1">جميع خدمات التنظيف بالبخار</p>
+          {/* <p className="text-lg text-white/90 mt-1">جميع خدمات التنظيف بالبخار</p> */}
           <div className="h-1 w-16 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
           <p className="mt-4 text-white/90">
             Full Dry Cleaning & Laundry Services · Free Home Delivery · 1 Hour Service

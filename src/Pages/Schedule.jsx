@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { api } from '../Utils/api';
+import  api  from '../Utils/api';
 import { getNearestBranch } from '../Utils/nearestBranch';
 
 const Schedule = () => {

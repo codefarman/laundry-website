@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { api } from '../Utils/api';
+import  api  from '../Utils/api';
 import Sidebar from '../Components/Sidebar';
 
 const Branches = () => {

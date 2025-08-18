@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
+import { toast } from 'react-toastify';
+import api from '../Utils/api';
 
 const HelpCenter = () => {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFAQ, setExpandedFAQ] = useState(null);
-  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
-  const [successMessage, setSuccessMessage] = useState('');
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '', category: '' });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,7 +20,7 @@ const HelpCenter = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-      setContactForm({ name: parsedUser.name || '', email: parsedUser.email || '', message: '' });
+      setContactForm({ name: parsedUser.name || '', email: parsedUser.email || '', message: '', category: '' });
     } else {
       navigate('/login');
     }
@@ -102,6 +107,19 @@ const HelpCenter = () => {
     },
   ];
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!contactForm.name.trim()) newErrors.name = 'Name is required';
+    if (!contactForm.email.trim()) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(contactForm.email)) newErrors.email = 'Invalid email format';
+    if (!contactForm.message.trim()) newErrors.message = 'Message is required';
+    if (!['Complaint', 'Suggestion', 'Question'].includes(contactForm.category)) {
+      newErrors.category = 'Please select a valid category (Complaint, Suggestion, or Question)';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
   };
@@ -132,14 +150,34 @@ const HelpCenter = () => {
     setExpandedFAQ(expandedFAQ === id ? null : id);
   };
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = async (e) => {
     e.preventDefault();
-    const submissions = JSON.parse(localStorage.getItem('supportSubmissions') || '[]');
-    submissions.push({ ...contactForm, id: Date.now(), date: new Date().toISOString() });
-    localStorage.setItem('supportSubmissions', JSON.stringify(submissions));
-    setSuccessMessage('Your query has been submitted! We’ll get back to you soon.');
-    setContactForm({ ...contactForm, message: '' });
-    setTimeout(() => setSuccessMessage(''), 3000);
+    if (!validateForm()) return;
+    setShowConfirmModal(true);
+  };
+
+  const confirmSubmit = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      console.log('Submitting feedback:', contactForm);
+      const response = await api.post('/feedback', contactForm);
+      setShowConfirmModal(false);
+      setShowSuccessModal(true); // Show success modal
+      setContactForm({ ...contactForm, message: '', category: '' }); // Reset message and category only
+    } catch (error) {
+      console.error('Feedback submission error:', error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || 'Failed to submit feedback';
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.', {
+          onClick: () => navigate('/login'),
+        });
+      } else {
+        toast.error(errorMessage);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -148,11 +186,6 @@ const HelpCenter = () => {
       <div className="min-h-screen bg-gray-100 pt-30 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">Towers Laundry Help Center</h2>
-          {successMessage && (
-            <div className="mb-6 p-4 bg-[#008080] text-white rounded-md text-center animate-fade-in">
-              {successMessage}
-            </div>
-          )}
           {!user ? (
             <p className="text-center text-gray-600">Redirecting to login...</p>
           ) : (
@@ -238,9 +271,11 @@ const HelpCenter = () => {
                       type="text"
                       value={contactForm.name}
                       onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080]"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                       placeholder="Enter your name"
+                      disabled={isSubmitting}
                     />
+                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                   </div>
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -251,9 +286,29 @@ const HelpCenter = () => {
                       type="email"
                       value={contactForm.email}
                       onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080]"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                       placeholder="Enter your email"
+                      disabled={isSubmitting}
                     />
+                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                      Category
+                    </label>
+                    <select
+                      id="category"
+                      value={contactForm.category}
+                      onChange={(e) => setContactForm({ ...contactForm, category: e.target.value })}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Select a category</option>
+                      <option value="Complaint">Complaint</option>
+                      <option value="Suggestion">Suggestion</option>
+                      <option value="Question">Question</option>
+                    </select>
+                    {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
                   </div>
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
@@ -263,19 +318,76 @@ const HelpCenter = () => {
                       id="message"
                       value={contactForm.message}
                       onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080]"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080] ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
                       placeholder="Describe your issue or question"
                       rows="4"
+                      disabled={isSubmitting}
                     />
+                    {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
                   </div>
                   <button
                     type="submit"
-                    className="w-full px-5 py-2 rounded-md bg-[#008080] text-white font-medium hover:bg-[#006666] transition-colors duration-300"
+                    disabled={isSubmitting}
+                    className={`w-full px-5 py-2 rounded-md text-white font-medium transition-colors duration-300 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#008080] hover:bg-[#006666]'}`}
                   >
-                    Submit Query
+                    {isSubmitting ? 'Submitting...' : 'Submit Query'}
                   </button>
                 </form>
               </div>
+
+              {/* Confirmation Modal */}
+              {showConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirm Submission</h3>
+                    <p className="text-gray-600 mb-6">Are you sure you want to submit this feedback?</p>
+                    <div className="flex justify-end space-x-4">
+                      <button
+                        onClick={() => setShowConfirmModal(false)}
+                        className="text-teal-600 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={confirmSubmit}
+                        disabled={isSubmitting}
+                        className={`px-4 py-2 rounded text-white ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-700'}`}
+                      >
+                        {isSubmitting ? 'Submitting...' : 'Confirm'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Success Modal */}
+              {showSuccessModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+                    <h3 className="text-lg font-semibold text-[#008080] mb-4">Feedback Submitted!</h3>
+                    <p className="text-gray-600 mb-6">
+                      Thank you for your feedback. Our team will review it soon. You can submit another query or continue browsing.
+                    </p>
+                    <div className="flex justify-end space-x-4">
+                      <button
+                        onClick={() => setShowSuccessModal(false)}
+                        className="px-4 py-2 rounded text-white bg-[#008080] hover:bg-[#006666] transition-colors duration-300"
+                      >
+                        Close
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowSuccessModal(false);
+                          navigate('/'); // Navigate to homepage or another page
+                        }}
+                        className="px-4 py-2 rounded text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300"
+                      >
+                        Back to Home
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
