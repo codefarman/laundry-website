@@ -39,9 +39,9 @@ const BookingPage = () => {
   const baseRetryDelay = 2000; // 2 seconds
 
   const branches = [
-    { id: '689ed9201be7ac46b783dd83', name: 'Main Branch - Musaffah Shabiya' },
-    { id: '689ed9201be7ac46b783dd84', name: 'Branch 2 - Near Emirates National School' },
-    { id: '689ed9201be7ac46b783dd85', name: 'Branch 3 - Near Baniyas Court' },
+    { id: '68a37f074e73a73a48ae52fc', name: 'Main Branch - Musaffah Shabiya' },
+    { id: '68a37f074e73a73a48ae52fd', name: 'Branch 2 - Near Emirates National School' },
+    { id: '68a37f074e73a73a48ae52fe', name: 'Branch 3 - Near Baniyas Court' },
   ];
 
   const countryCodes = [
