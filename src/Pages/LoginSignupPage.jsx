@@ -117,7 +117,7 @@ const LoginSignupPage = () => {
           </button>
         </div>
 
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -146,13 +146,13 @@ const LoginSignupPage = () => {
               Continue with Facebook
             </button>
           </motion.div>
-        </div>
+        </div> */}
 
-        <div className="relative flex items-center mb-6">
+        {/* <div className="relative flex items-center mb-6">
           <div className="flex-grow border-t border-[#008080]/20"></div>
           <span className="flex-shrink mx-4 text-[#64748B] text-sm">Or with email</span>
           <div className="flex-grow border-t border-[#008080]/20"></div>
-        </div>
+        </div> */}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {activeTab === 'signup' && (
